@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gold: #c5a059;
+    --gold-light: #d4b87a;
+    --gold-dark: #a8833a;
+    --brown: #4a3728;
+    --brown-deep: #f3ede4;
+    --bg: #ffffff;
+    --surface: #faf7f2;
+    --text: #2d1f18;
+    --text-muted: #6b5d50;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--text);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  ::selection {
+    background-color: rgba(197, 160, 89, 0.25);
+    color: var(--text);
+  }
+}
+
+@layer components {
+  .sw-input {
+    @apply w-full px-4 py-3 bg-brand-surface border border-brand-gold/20 rounded-sm text-brand-text outline-none transition-colors focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30;
+  }
+
+  .sw-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-brand-gold text-white font-medium tracking-wide rounded-sm shadow-gold hover:bg-brand-gold-light transition-all duration-300 active:scale-[0.98];
+  }
+
+  .sw-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 bg-brand-brown-deep text-brand-text border border-brand-gold/25 rounded-sm font-medium tracking-wide hover:border-brand-gold hover:text-brand-gold transition-all duration-300;
+  }
+
+  .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  .gold-gradient-text {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.5), transparent);
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 1px 0 rgba(197, 160, 89, 0.12);
+  }
+
+  .card-shadow {
+    box-shadow: 0 4px 24px rgba(45, 31, 24, 0.06);
+  }
+}

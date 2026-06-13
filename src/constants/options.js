@@ -1,0 +1,13 @@
+export const RELIGIONS = ['Baniya', 'Hindu', 'Jain', 'Muslim', 'Sikh', 'Sindhi', 'Punjabi', 'Other'];
+export const MARITAL_STATUS = ['Unmarried', 'Divorced', 'Separated', 'Widowed'];
+export const COMPLEXION = ['Very Fair', 'Fair', 'Wheatish', 'Wheatish Brown', 'Dark'];
+export const HEIGHTS = ["4'07", "4'08", "4'09", "4'10", "4'11", "5'0", "5'01", "5'02", "5'03", "5'04", "5'05", "5'06", "5'07", "5'08", "5'09", "5'10", "5'11", "6'0", "6'01", "6'02", "6'03", "6'04", "6'05", "6'06", "6'07"];
+export const DIET = ['Vegetarian', 'Non-Vegetarian', 'Eggetarian', 'Pescatarian'];
+export const HABIT_YES_NO = ['No', 'Yes', 'Occasionally'];
+export const YES_NO = ['No', 'Yes'];
+export const RESIDENCE_TYPE = ['Own', 'Rented'];
+export const PLANS = ['Crown', 'Diamond', 'Gold'];
+export const PAYMENT_MODES = ['Cash', 'Current Account', 'Online'];
+export const STATES_INDIA = ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi', 'Chandigarh', 'Jammu And Kashmir', 'Ladakh', 'Puducherry', 'Other'];
+export const OCCUPATIONS = ['Advocate', 'Army Officer', 'Business', 'Chartered Accountant', 'Doctor', 'Freelance', 'Govt. Job', 'Homemaker', 'Industrialist', 'Lawyer', 'N/A', 'Not Working', 'Pilot', 'Politician', 'Professional', 'Retired', 'Teacher'];
+export const EDUCATION_LEVELS = ['10th Pass', '12th Pass', 'Graduate', 'B.A', 'B.Com', 'B.Sc', 'B.Tech/B.E', 'BBA', 'BCA', 'B.Arch', 'B.Pharma', 'B.Ed', 'LLB', 'MBBS', 'BDS', 'CA', 'CS', 'ICWA', 'Diploma', 'Post-Graduate', 'M.A', 'M.Com', 'M.Sc', 'M.Tech', 'MBA', 'MCA', 'M.Ed', 'LLM', 'MD/MS', 'M.Pharma', 'Ph.D', 'Other'];
