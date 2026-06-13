@@ -2,7 +2,6 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 
 export default function DeleteConfirmModal({ deleteTarget, onCancel, onConfirm, isDeleting = false }) {
   if (!deleteTarget) return null;
-  const isDeleteAll = deleteTarget === 'ALL';
 
   return (
     <div className="modal-overlay" onClick={isDeleting ? undefined : onCancel}>
@@ -11,13 +10,9 @@ export default function DeleteConfirmModal({ deleteTarget, onCancel, onConfirm, 
           <div className="w-16 h-16 rounded-full bg-red-50 border border-red-100 flex items-center justify-center mx-auto mb-5">
             <AlertTriangle className="w-8 h-8 text-red-500" />
           </div>
-          <h3 className="font-display text-xl font-bold text-brand-text mb-2">
-            {isDeleteAll ? 'Delete All Profiles?' : 'Delete Profile?'}
-          </h3>
+          <h3 className="font-display text-xl font-bold text-brand-text mb-2">Delete Profile?</h3>
           <p className="text-sm text-brand-muted leading-relaxed">
-            {isDeleteAll
-              ? 'This will permanently delete every profile in the database. This cannot be undone.'
-              : 'Are you sure you want to remove this candidate permanently?'}
+            Are you sure you want to remove this candidate permanently?
           </p>
         </div>
         <div className="modal-footer">
@@ -31,8 +26,7 @@ export default function DeleteConfirmModal({ deleteTarget, onCancel, onConfirm, 
           >
             {isDeleting ? (
               <span className="inline-flex items-center gap-2 justify-center">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {isDeleteAll ? 'Deleting...' : 'Removing...'}
+                <Loader2 className="w-4 h-4 animate-spin" /> Removing...
               </span>
             ) : (
               'Yes, Delete'

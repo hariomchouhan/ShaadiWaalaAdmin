@@ -27,7 +27,7 @@ import { compressImage } from './utils/imageUtils';
 import { parseCSV, downloadCSV } from './utils/csvUtils';
 import { printBiodata } from './utils/printBiodata';
 import {
-  createProfile, updateProfile, deleteProfile, deleteAllProfiles, batchImportProfiles,
+  createProfile, updateProfile, deleteProfile, batchImportProfiles,
 } from './services/profileService';
 import { uploadProfilePhotoFromBase64 } from './services/storageService';
 import { extractProfile } from './services/aiService';
@@ -59,7 +59,6 @@ export default function App() {
   const [importProgress, setImportProgress] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteProgress, setDeleteProgress] = useState(null);
   const [expandedSection, setExpandedSection] = useState('Basic Details');
 
   const fileInputRef = useRef(null);
@@ -167,15 +166,9 @@ export default function App() {
   const executeDelete = async () => {
     if (!deleteTarget || isDeleting) return;
     setIsDeleting(true);
-    setDeleteProgress(null);
     try {
-      if (deleteTarget === 'ALL') {
-        await deleteAllProfiles((p) => setDeleteProgress(p));
-        showNotification('All profiles deleted permanently.', 'error');
-      } else {
-        await deleteProfile(deleteTarget);
-        showNotification('Profile deleted.');
-      }
+      await deleteProfile(deleteTarget);
+      showNotification('Profile deleted.');
       setDeleteTarget(null);
       setIsViewModalOpen(false);
       refresh();
@@ -184,7 +177,6 @@ export default function App() {
       showNotification('Delete failed', 'error');
     } finally {
       setIsDeleting(false);
-      setDeleteProgress(null);
     }
   };
 
@@ -371,7 +363,6 @@ export default function App() {
     onFileSelect: handleFileSelect,
     isImporting,
     isExporting,
-    onDeleteAll: () => setDeleteTarget('ALL'),
     profileCount: profiles.length,
   };
 
@@ -417,13 +408,6 @@ export default function App() {
         message={importProgress?.label || 'Processing your file...'}
         progress={importProgress?.total ? importProgress : null}
         indeterminate={!importProgress?.total}
-      />
-      <OperationOverlay
-        open={isDeleting && deleteTarget === 'ALL'}
-        title="Deleting All Profiles"
-        message="Removing records from Firebase..."
-        progress={deleteProgress}
-        indeterminate={!deleteProgress?.total}
       />
       <OperationOverlay
         open={isExporting}

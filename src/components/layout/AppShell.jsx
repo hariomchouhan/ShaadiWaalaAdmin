@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   LayoutGrid, FilePenLine, FileSearch, FileText, Sparkles, Plus,
-  UploadCloud, Download, Trash2, LogOut, Menu, X, Loader2,
+  UploadCloud, Download, LogOut, Menu, X, Loader2,
 } from 'lucide-react';
 import { BRAND } from '../../config/brand';
 import BrandLogo from '../common/BrandLogo';
@@ -24,7 +24,6 @@ export default function AppShell({
   onFileSelect,
   isImporting,
   isExporting,
-  onDeleteAll,
   profileCount = 0,
   children,
 }) {
@@ -83,9 +82,6 @@ export default function AppShell({
         >
           {isExporting ? <Loader2 className="w-5 h-5 animate-spin shrink-0" /> : <Download className="w-5 h-5 shrink-0" />}
           {isExporting ? 'Exporting...' : 'Export CSV'}
-        </button>
-        <button onClick={() => { onDeleteAll(); closeMobile(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-300/80 hover:text-red-300 hover:bg-red-500/10 transition-colors">
-          <Trash2 className="w-5 h-5" /> Delete All
         </button>
       </div>
 
