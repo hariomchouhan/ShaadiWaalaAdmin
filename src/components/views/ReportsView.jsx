@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, FileSpreadsheet, Printer } from 'lucide-react';
+import { FileSpreadsheet, Printer, Loader2 } from 'lucide-react';
 import { formatDate } from '../../utils/dateUtils';
 import { downloadCSV } from '../../utils/csvUtils';
 import { BRAND } from '../../config/brand';
+import PageHeader from '../layout/PageHeader';
 
-export default function ReportsView({ profiles, onBack }) {
+export default function ReportsView({ profiles }) {
   const [startYear, setStartYear] = useState('');
   const [endYear, setEndYear] = useState('');
   const [exclusiveRange, setExclusiveRange] = useState(true);
@@ -16,6 +17,7 @@ export default function ReportsView({ profiles, onBack }) {
   // NEW: BLANK ROWS CONTROLS
   const [showBlankRows, setShowBlankRows] = useState(true);
   const [blankRowCount, setBlankRowCount] = useState(5);
+  const [isExporting, setIsExporting] = useState(false);
 
   const filteredReport = useMemo(() => {
     if (!isMasterList && (!startYear || !endYear)) return [];
@@ -84,8 +86,11 @@ export default function ReportsView({ profiles, onBack }) {
     window.print();
   };
 
-  const handleExportReport = () => {
-    if (filteredReport.length === 0) return;
+  const handleExportReport = async () => {
+    if (filteredReport.length === 0 || isExporting) return;
+    setIsExporting(true);
+    try {
+      await new Promise((r) => setTimeout(r, 50));
 
     const headers = ['S.No', 'Name', 'Gender', 'DOB', 'Place', 'Phone', 'Reference', 'Caste', 'Notes'];
     const rows = [headers.join(',')];
@@ -132,12 +137,15 @@ export default function ReportsView({ profiles, onBack }) {
 
     const filename = `${BRAND.name}_${nriFilter==='Yes'?'NRI':'NonNRI'}_${isMasterList ? 'MasterList' : `${startYear}_${endYear}`}.csv`;
     downloadCSV(rows, filename);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   let displayCounter = 1;
 
   return (
-    <div className="bg-white min-h-screen p-6 print-bg-white">
+    <div className="print-bg-white">
       <style>{`
         @media print {
           @page { size: A4 ${printLayout}; margin: 10mm; }
@@ -190,52 +198,37 @@ export default function ReportsView({ profiles, onBack }) {
       `}</style>
 
       <div className="max-w-6xl mx-auto print-container">
-        <div className="flex items-center justify-between mb-6 no-print">
-          <div className="flex items-center gap-3">
-            <button onClick={onBack} className="p-2 hover:bg-brand-cream rounded-full">
-              <ArrowLeft />
+        <div className="no-print mb-6">
+          <PageHeader title="Print & Reports" subtitle="Generate caste-wise lists, master lists, and printable documents">
+            <button onClick={handleExportReport} disabled={filteredReport.length === 0 || isExporting} className="sw-btn-secondary px-4 py-2.5 text-sm disabled:opacity-50">
+              {isExporting ? (
+                <span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Exporting...</span>
+              ) : (
+                <><FileSpreadsheet size={16} /> Export CSV</>
+              )}
             </button>
-            <h2 className="text-2xl font-display font-bold text-brand-dark">Print & Reports</h2>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={handleExportReport}
-              disabled={filteredReport.length === 0}
-              className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-emerald-50 text-emerald-700 disabled:opacity-50 font-bold"
-            >
-              <FileSpreadsheet size={18} /> Download CSV
+            <button onClick={handlePrintTable} disabled={filteredReport.length === 0} className="sw-btn-primary px-4 py-2.5 text-sm disabled:opacity-50">
+              <Printer size={16} /> Print
             </button>
-            <button
-              onClick={handlePrintTable}
-              disabled={filteredReport.length === 0}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 font-bold"
-            >
-              <Printer size={18} /> Print Document
-            </button>
-          </div>
+          </PageHeader>
         </div>
 
-        <div className="bg-gray-50 p-4 rounded-xl mb-6 border no-print">
-          <div className="flex flex-wrap gap-4 items-end">
+        <div className="sw-card p-4 sm:p-5 mb-6 no-print">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:flex xl:flex-wrap gap-4 xl:items-end">
             <div>
-              <label className="block text-sm font-bold mb-1 text-gray-700">List Type</label>
-              <select
-                  className="p-2 border rounded w-32 font-bold text-blue-800 bg-white"
-                  value={nriFilter}
-                  onChange={e => setNriFilter(e.target.value)}
-              >
+              <label className="sw-label">List Type</label>
+              <select className="sw-select w-full sm:w-32 font-medium text-brand-brown" value={nriFilter} onChange={e => setNriFilter(e.target.value)}>
                   <option value="No">Indian</option>
                   <option value="Yes">NRI Only</option>
               </select>
             </div>
 
-            <div className="border-l pl-4">
-              <label className="block text-sm font-bold mb-1 text-gray-700">From</label>
+            <div className="xl:border-l xl:pl-4">
+              <label className="sw-label">From Year</label>
               <input
                   type="number"
                   disabled={isMasterList}
-                  className={`p-2 border rounded w-20 ${isMasterList ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white'}`}
+                  className={`sw-input w-full sm:w-24 ${isMasterList ? 'opacity-50 cursor-not-allowed' : ''}`}
                   value={startYear}
                   onChange={e => setStartYear(e.target.value)}
                   placeholder="1990"
@@ -243,124 +236,124 @@ export default function ReportsView({ profiles, onBack }) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold mb-1 text-gray-700">To</label>
+              <label className="sw-label">To Year</label>
               <input
                   type="number"
                   disabled={isMasterList}
-                  className={`p-2 border rounded w-20 ${isMasterList ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white'}`}
+                  className={`sw-input w-full sm:w-24 ${isMasterList ? 'opacity-50 cursor-not-allowed' : ''}`}
                   value={endYear}
                   onChange={e => setEndYear(e.target.value)}
                   placeholder="1995"
               />
             </div>
 
-            <div className="border-l pl-4">
-              <label className="block text-sm font-bold mb-1 text-gray-700">Layout</label>
-              <div className="flex bg-white border rounded p-1">
+            <div className="col-span-2 sm:col-span-1 xl:border-l xl:pl-4">
+              <label className="sw-label">Print Layout</label>
+              <div className="flex bg-brand-surface border border-brand-gold/20 rounded-lg p-1">
                 <button
                     onClick={() => setPrintLayout('portrait')}
-                    className={`px-3 py-1 text-xs font-bold rounded transition-colors ${printLayout === 'portrait' ? 'bg-brand-cream text-brand-primary' : 'text-gray-500 hover:bg-gray-50'}`}
+                    className={`flex-1 px-3 py-2 text-xs font-semibold rounded-md transition-colors ${printLayout === 'portrait' ? 'bg-brand-gold text-white shadow-sm' : 'text-brand-muted hover:text-brand-text hover:bg-brand-bg'}`}
                 >
                     Portrait
                 </button>
                 <button
                     onClick={() => setPrintLayout('landscape')}
-                    className={`px-3 py-1 text-xs font-bold rounded transition-colors ${printLayout === 'landscape' ? 'bg-brand-cream text-brand-primary' : 'text-gray-500 hover:bg-gray-50'}`}
+                    className={`flex-1 px-3 py-2 text-xs font-semibold rounded-md transition-colors ${printLayout === 'landscape' ? 'bg-brand-gold text-white shadow-sm' : 'text-brand-muted hover:text-brand-text hover:bg-brand-bg'}`}
                 >
                     Landscape
                 </button>
               </div>
             </div>
 
-            {/* MASTER LIST CONTROLS */}
-            <div className="flex flex-col justify-center gap-2 px-4 border-l">
-                <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+            <div className="col-span-2 sm:col-span-1 flex flex-col justify-center gap-2 xl:px-4 xl:border-l">
+                <label className="flex items-center gap-2.5 text-sm font-medium cursor-pointer text-brand-text">
                     <input
                         type="checkbox"
                         checked={isMasterList}
                         onChange={e => setIsMasterList(e.target.checked)}
-                        className="w-5 h-5 text-purple-600 rounded cursor-pointer"
+                        className="w-4 h-4 rounded border-brand-gold/30 text-brand-gold focus:ring-brand-gold/30 accent-brand-gold cursor-pointer"
                     />
-                    <span className="text-purple-700 font-bold text-base">Master List</span>
+                    <span className="font-semibold">Master List</span>
                 </label>
 
-                <label className={`flex items-center gap-2 text-sm font-medium ${isMasterList ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}>
+                <label className={`flex items-center gap-2.5 text-sm ${isMasterList ? 'cursor-pointer text-brand-text' : 'opacity-40 cursor-not-allowed text-brand-muted'}`}>
                     <input
                         type="checkbox"
                         disabled={!isMasterList}
                         checked={splitGender}
                         onChange={e => setSplitGender(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 rounded"
+                        className="w-4 h-4 rounded border-brand-gold/30 text-brand-gold focus:ring-brand-gold/30 accent-brand-gold"
                     />
-                    <span className="text-blue-800">Separate Boys/Girls</span>
+                    <span>Separate Boys/Girls</span>
                 </label>
             </div>
 
-            {/* NEW: BLANK ROWS CONTROLS */}
-            <div className={`flex flex-col justify-center gap-2 px-4 border-l ${isMasterList ? 'opacity-40 cursor-not-allowed' : ''}`}>
-                <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+            <div className={`col-span-2 sm:col-span-1 flex flex-col justify-center gap-2 xl:px-4 xl:border-l ${isMasterList ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                <label className="flex items-center gap-2.5 text-sm font-medium cursor-pointer text-brand-text">
                     <input
                         type="checkbox"
                         disabled={isMasterList}
                         checked={showBlankRows}
                         onChange={e => setShowBlankRows(e.target.checked)}
-                        className="w-4 h-4 text-emerald-600 rounded"
+                        className="w-4 h-4 rounded border-brand-gold/30 text-brand-gold focus:ring-brand-gold/30 accent-brand-gold"
                     />
-                    <span className="text-emerald-700 font-bold">Blank Notes Rows</span>
+                    <span className="font-semibold">Blank Notes Rows</span>
                 </label>
 
                 <div className="flex items-center gap-2 ml-6">
-                    <span className="text-xs text-gray-500 font-bold">Lines per Group:</span>
+                    <span className="text-xs text-brand-muted font-medium">Lines per group</span>
                     <input
                         type="number"
                         disabled={isMasterList || !showBlankRows}
                         value={blankRowCount}
                         onChange={e => setBlankRowCount(e.target.value)}
-                        className={`w-16 p-1 text-xs border rounded ${(!showBlankRows || isMasterList) ? 'bg-gray-100 text-gray-400' : 'bg-white'}`}
+                        className={`sw-input w-16 py-1.5 text-xs ${(!showBlankRows || isMasterList) ? 'opacity-50 cursor-not-allowed' : ''}`}
                         min="0"
                         max="50"
                     />
                 </div>
             </div>
 
-            <div className="flex-1 text-right text-gray-500 text-sm pb-2">
-              Found: <b className="text-gray-900 text-lg">{filteredReport.length}</b> records
+            <div className="col-span-2 sm:col-span-3 lg:col-span-4 xl:flex-1 xl:text-right flex items-end justify-end pb-1">
+              <p className="text-sm text-brand-muted">
+                Found <span className="font-display font-bold text-brand-gold text-xl">{filteredReport.length}</span> records
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto border rounded-lg shadow-sm bg-white print-table-wrapper">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100 text-xs uppercase font-bold">
+        <div className="overflow-x-auto sw-card p-0 print-table-wrapper">
+          <table className="w-full text-sm text-left min-w-[720px]">
+            <thead className="bg-brand-brown-deep text-xs uppercase font-semibold text-brand-brown border-b border-brand-gold/15">
               <tr>
-                <th className="px-4 py-3">S.No</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Gender</th>
-                <th className="px-4 py-3">DOB</th>
-                <th className="px-4 py-3">Place</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Reference</th>
-                <th className="px-4 py-3 bg-blue-50 text-blue-800">Caste</th>
-                <th className="px-4 py-3 bg-yellow-50 text-yellow-800">Notes</th>
+                <th className="px-3 sm:px-4 py-3">S.No</th>
+                <th className="px-3 sm:px-4 py-3">Name</th>
+                <th className="px-3 sm:px-4 py-3">Gender</th>
+                <th className="px-3 sm:px-4 py-3">DOB</th>
+                <th className="px-3 sm:px-4 py-3">Place</th>
+                <th className="px-3 sm:px-4 py-3">Phone</th>
+                <th className="px-3 sm:px-4 py-3">Reference</th>
+                <th className="px-3 sm:px-4 py-3 bg-brand-gold/10 text-brand-brown">Caste</th>
+                <th className="px-3 sm:px-4 py-3 bg-brand-gold/5 text-brand-brown">Notes</th>
               </tr>
             </thead>
 
             {Object.keys(groupedReports).length > 0 ? (
                 Object.entries(groupedReports).map(([groupName, profilesArr], groupIndex) => (
-                  <tbody key={groupName} className={`divide-y border-t border-gray-200 ${groupIndex > 0 && isMasterList && splitGender ? 'page-break' : ''}`}>
+                  <tbody key={groupName} className={`divide-y divide-brand-gold/10 ${groupIndex > 0 && isMasterList && splitGender ? 'page-break' : ''}`}>
 
                     {isMasterList && splitGender && (
                         <tr>
-                            <td colSpan="9" className="text-center font-bold bg-blue-50 text-blue-900 uppercase text-lg py-2">
-                                --- {groupName} ---
+                            <td colSpan="9" className="text-center font-display font-bold bg-brand-gold/15 text-brand-brown uppercase text-base sm:text-lg py-3 tracking-wide">
+                                — {groupName} —
                             </td>
                         </tr>
                     )}
 
                     {profilesArr.map((p) => (
-                      <tr key={p.id}>
-                        <td className="px-4 py-2 font-bold text-gray-500 text-center">{displayCounter++}</td>
-                        <td className="px-4 py-2 font-medium">
+                      <tr key={p.id} className="hover:bg-brand-surface/50 transition-colors">
+                        <td className="px-3 sm:px-4 py-2.5 font-semibold text-brand-muted text-center">{displayCounter++}</td>
+                        <td className="px-3 sm:px-4 py-2.5 font-medium text-brand-text">
                             {p.fullName}
                             {p.maritalStatus && p.maritalStatus !== 'Unmarried' && (
                                 <span className="status-tag">
@@ -368,32 +361,30 @@ export default function ReportsView({ profiles, onBack }) {
                                 </span>
                             )}
                         </td>
-                        <td className="px-4 py-2 text-xs">{p.gender}</td>
-                        <td className="px-4 py-2">{formatDate(p.dob)}</td>
-                        <td className="px-4 py-2">{p.location}</td>
-                        <td className="px-4 py-2">{p.phone ? p.phone.replace(/,/g, ' / ') : ''}</td>
-                        <td className="px-4 py-2 text-xs">{p.reference}</td>
-                        <td className="px-4 py-2 font-bold text-blue-800 bg-blue-50/20">{p.community}</td>
-                        <td className="px-4 py-2 bg-yellow-50/20"></td>
+                        <td className="px-3 sm:px-4 py-2.5 text-xs text-brand-muted">{p.gender}</td>
+                        <td className="px-3 sm:px-4 py-2.5">{formatDate(p.dob)}</td>
+                        <td className="px-3 sm:px-4 py-2.5">{p.location}</td>
+                        <td className="px-3 sm:px-4 py-2.5">{p.phone ? p.phone.replace(/,/g, ' / ') : ''}</td>
+                        <td className="px-3 sm:px-4 py-2.5 text-xs text-brand-muted">{p.reference}</td>
+                        <td className="px-3 sm:px-4 py-2.5 font-semibold text-brand-brown bg-brand-gold/5">{p.community}</td>
+                        <td className="px-3 sm:px-4 py-2.5 bg-brand-surface/30"></td>
                       </tr>
                     ))}
 
-                    {/* ONLY RENDER BLANK ROWS IF TOGGLED ON */}
                     {!isMasterList && showBlankRows && Number(blankRowCount) > 0 && [...Array(Number(blankRowCount))].map((_, i) => (
-                        <tr key={`empty-${groupName}-${i}`} className="empty-row bg-gray-50/50">
-                            <td className="px-4 py-2"></td>
-                            <td className="px-4 py-2"></td>
-                            <td className="px-4 py-2"></td>
-                            <td className="px-4 py-2"></td>
-                            <td className="px-4 py-2"></td>
-                            <td className="px-4 py-2"></td>
-                            <td className="px-4 py-2"></td>
-                            <td className="px-4 py-2 text-gray-400 text-xs italic">{groupName}</td>
-                            <td className="px-4 py-2"></td>
+                        <tr key={`empty-${groupName}-${i}`} className="empty-row bg-brand-surface/40">
+                            <td className="px-3 sm:px-4 py-2"></td>
+                            <td className="px-3 sm:px-4 py-2"></td>
+                            <td className="px-3 sm:px-4 py-2"></td>
+                            <td className="px-3 sm:px-4 py-2"></td>
+                            <td className="px-3 sm:px-4 py-2"></td>
+                            <td className="px-3 sm:px-4 py-2"></td>
+                            <td className="px-3 sm:px-4 py-2"></td>
+                            <td className="px-3 sm:px-4 py-2 text-brand-muted/60 text-xs italic">{groupName}</td>
+                            <td className="px-3 sm:px-4 py-2"></td>
                         </tr>
                     ))}
 
-                    {/* WE ALWAYS KEEP THE BLACK LINE SEPARATOR FOR CLEAN ORGANIZATION */}
                     {!isMasterList && (
                         <tr className="print-separator">
                             <td colSpan="9"></td>
@@ -404,8 +395,9 @@ export default function ReportsView({ profiles, onBack }) {
             ) : (
                 <tbody>
                     <tr>
-                    <td colSpan="9" className="text-center py-8 text-gray-400 no-print">
-                        Generate a report to see data
+                    <td colSpan="9" className="text-center py-12 text-brand-muted no-print">
+                        <p className="font-display text-lg text-brand-text/80 mb-1">No report generated yet</p>
+                        <p className="text-sm">Select a year range or enable Master List to preview records</p>
                     </td>
                     </tr>
                 </tbody>

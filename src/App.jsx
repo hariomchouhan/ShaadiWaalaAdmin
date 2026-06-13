@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
 import LoginScreen from './components/auth/LoginScreen';
-import Header from './components/layout/Header';
+import AppShell from './components/layout/AppShell';
+import BrandLogo from './components/common/BrandLogo';
 import Notification from './components/common/Notification';
+import OperationOverlay from './components/common/OperationOverlay';
 import ProfileCard from './components/profiles/ProfileCard';
 import ProfileFilters from './components/profiles/ProfileFilters';
 import ProfileFormModal from './components/profiles/ProfileFormModal';
@@ -50,7 +52,14 @@ export default function App() {
   const [isProcessingAI, setIsProcessingAI] = useState(false);
   const [currentProfile, setCurrentProfile] = useState(null);
   const [formData, setFormData] = useState({});
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [galleryUpload, setGalleryUpload] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState(null);
   const [expandedSection, setExpandedSection] = useState('Basic Details');
 
   const fileInputRef = useRef(null);
@@ -87,6 +96,7 @@ export default function App() {
           if (file) {
             e.preventDefault();
             showNotification('Uploading pasted image...', 'info');
+            setIsUploadingAvatar(true);
             try {
               const b64 = await compressImage(file);
               const fileName = `pasted_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
@@ -103,6 +113,8 @@ export default function App() {
             } catch (err) {
               console.error(err);
               showNotification('Paste upload failed', 'error');
+            } finally {
+              setIsUploadingAvatar(false);
             }
             return;
           }
@@ -131,28 +143,34 @@ export default function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSavingProfile) return;
     if (!isFirebaseConfigured) return showNotification('Firebase not configured', 'error');
+    setIsSavingProfile(true);
     try {
       if (currentProfile) {
         await updateProfile(currentProfile.id, formData);
-        showNotification('Updated!');
+        showNotification('Profile updated successfully!');
       } else {
         await createProfile(formData);
-        showNotification('Created!');
+        showNotification('Profile saved successfully!');
       }
       setIsEditModalOpen(false);
       refresh();
     } catch (err) {
       console.error(err);
-      showNotification('Save failed', 'error');
+      showNotification('Save failed. Please try again.', 'error');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
   const executeDelete = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget || isDeleting) return;
+    setIsDeleting(true);
+    setDeleteProgress(null);
     try {
       if (deleteTarget === 'ALL') {
-        await deleteAllProfiles();
+        await deleteAllProfiles((p) => setDeleteProgress(p));
         showNotification('All profiles deleted permanently.', 'error');
       } else {
         await deleteProfile(deleteTarget);
@@ -164,40 +182,52 @@ export default function App() {
     } catch (e) {
       console.error(e);
       showNotification('Delete failed', 'error');
+    } finally {
+      setIsDeleting(false);
+      setDeleteProgress(null);
     }
   };
 
   const handleManualUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    showNotification('Uploading...', 'success');
+    if (!file || isUploadingAvatar || galleryUpload?.active || isSavingProfile) return;
+    e.target.value = '';
+    setIsUploadingAvatar(true);
+    showNotification('Uploading photo...', 'info');
     try {
       const b64 = await compressImage(file);
       const url = await uploadProfilePhotoFromBase64(b64, `avatar_${Date.now()}.jpg`);
       setFormData((prev) => ({ ...prev, avatar: url }));
-      showNotification('Main Photo Updated!');
+      showNotification('Main photo updated!');
     } catch (err) {
       console.error(err);
       showNotification('Upload failed', 'error');
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
   const handleGalleryUpload = async (e) => {
     const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-    showNotification(`Uploading ${files.length} photos...`, 'success');
+    if (files.length === 0 || isUploadingAvatar || galleryUpload?.active || isSavingProfile) return;
+    e.target.value = '';
+    setGalleryUpload({ active: true, current: 0, total: files.length });
+    showNotification(`Uploading ${files.length} photo${files.length > 1 ? 's' : ''}...`, 'info');
     try {
       const uploadedUrls = [];
-      for (const file of files) {
-        const b64 = await compressImage(file);
+      for (let i = 0; i < files.length; i++) {
+        setGalleryUpload({ active: true, current: i + 1, total: files.length });
+        const b64 = await compressImage(files[i]);
         const url = await uploadProfilePhotoFromBase64(b64, `gallery_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`);
         uploadedUrls.push(url);
       }
       setFormData((prev) => ({ ...prev, gallery: [...(prev.gallery || []), ...uploadedUrls] }));
-      showNotification(`${files.length} photos added!`);
+      showNotification(`${files.length} photo${files.length > 1 ? 's' : ''} added!`);
     } catch (err) {
       console.error(err);
       showNotification('Gallery upload failed', 'error');
+    } finally {
+      setGalleryUpload(null);
     }
   };
 
@@ -211,10 +241,11 @@ export default function App() {
   };
 
   const executeImport = async () => {
-    if (!importConfirmation?.file) return;
+    if (!importConfirmation?.file || isImporting) return;
     const file = importConfirmation.file;
     setImportConfirmation(null);
     setIsImporting(true);
+    setImportProgress({ current: 0, total: 0, label: 'Reading CSV file...' });
 
     const reader = new FileReader();
     reader.onload = async (ev) => {
@@ -248,27 +279,43 @@ export default function App() {
           if (hasData) toImport.push(d);
         }
 
-        const count = await batchImportProfiles(toImport);
-        showNotification(`Success! ${count} imported.`);
+        setImportProgress({ current: 0, total: toImport.length, label: 'Importing profiles to Firebase...' });
+        const count = await batchImportProfiles(toImport, (p) => {
+          setImportProgress({ ...p, label: 'Importing profiles to Firebase...' });
+        });
+        showNotification(`Success! ${count} profile${count === 1 ? '' : 's'} imported.`);
         refresh();
       } catch (err) {
         console.error(err);
         showNotification('Import failed.', 'error');
       } finally {
         setIsImporting(false);
+        setImportProgress(null);
       }
+    };
+    reader.onerror = () => {
+      showNotification('Could not read CSV file.', 'error');
+      setIsImporting(false);
+      setImportProgress(null);
     };
     reader.readAsText(file);
   };
 
-  const handleExportCSV = () => {
-    if (profiles.length === 0) return;
-    const headers = PROFILE_SCHEMA.map((f) => f.csvHeader || f.label);
-    const keys = PROFILE_SCHEMA.map((f) => f.key);
-    downloadCSV(
-      [headers.join(','), ...profiles.map((row) => keys.map((k) => `"${String(row[k] || '').replace(/"/g, '""')}"`).join(','))],
-      'shaadiwaala_data.csv'
-    );
+  const handleExportCSV = async () => {
+    if (profiles.length === 0 || isExporting) return;
+    setIsExporting(true);
+    try {
+      await new Promise((r) => setTimeout(r, 50));
+      const headers = PROFILE_SCHEMA.map((f) => f.csvHeader || f.label);
+      const keys = PROFILE_SCHEMA.map((f) => f.key);
+      downloadCSV(
+        [headers.join(','), ...profiles.map((row) => keys.map((k) => `"${String(row[k] || '').replace(/"/g, '""')}"`).join(','))],
+        'shaadiwaala_data.csv'
+      );
+      showNotification(`Exported ${profiles.length} profiles.`);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const openAddProfile = () => {
@@ -290,8 +337,10 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-surface">
-        <Loader2 className="w-10 h-10 animate-spin text-brand-gold" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-brand-surface gap-4">
+        <BrandLogo size="lg" className="rounded-md opacity-90" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-gold" />
+        <p className="text-sm text-brand-muted">Loading...</p>
       </div>
     );
   }
@@ -302,7 +351,7 @@ export default function App() {
         <div className="bg-brand-bg rounded-sm card-shadow p-8 max-w-md text-center border border-brand-gold/15">
           <h2 className="text-xl font-display font-bold text-brand-text mb-2">Firebase Not Configured</h2>
           <p className="text-gray-600 text-sm mb-4">
-            Copy <code className="bg-gray-100 px-1 rounded">.env.example</code> to <code className="bg-gray-100 px-1 rounded">.env</code> and add your Firebase credentials.
+            Copy <code className="bg-brand-brown-deep px-1.5 py-0.5 rounded text-brand-brown">.env.example</code> to <code className="bg-brand-brown-deep px-1.5 py-0.5 rounded text-brand-brown">.env</code> and add your Firebase credentials.
           </p>
         </div>
       </div>
@@ -311,79 +360,24 @@ export default function App() {
 
   if (!isAuthenticated) return <LoginScreen onLogin={login} />;
 
-  if (activeView === 'reports') return <ReportsView profiles={profiles} onBack={() => setActiveView('dashboard')} />;
-  if (activeView === 'matcher') return <DuplicateCheckerView profiles={profiles} onBack={() => setActiveView('dashboard')} />;
-  if (activeView === 'bulk-edit') return <BulkEditView profiles={profiles} onBack={() => setActiveView('dashboard')} />;
+  const shellProps = {
+    activeView,
+    onNavigate: setActiveView,
+    onLogout: logout,
+    onOpenAI: () => setIsAIModalOpen(true),
+    onAdd: openAddProfile,
+    onExport: handleExportCSV,
+    fileInputRef,
+    onFileSelect: handleFileSelect,
+    isImporting,
+    isExporting,
+    onDeleteAll: () => setDeleteTarget('ALL'),
+    profileCount: profiles.length,
+  };
 
-  return (
-    <div className="min-h-screen bg-brand-surface text-brand-text font-sans">
-      <Notification notification={notification} />
-
-      <Header
-        onNavigate={setActiveView}
-        onDeleteAll={() => setDeleteTarget('ALL')}
-        onOpenAI={() => setIsAIModalOpen(true)}
-        onExport={handleExportCSV}
-        onImportClick={() => fileInputRef.current?.click()}
-        onAdd={openAddProfile}
-        onLogout={logout}
-        isImporting={isImporting}
-        fileInputRef={fileInputRef}
-        onFileSelect={handleFileSelect}
-      />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <ProfileFilters
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
-          activeFilters={activeFilters}
-          onFilterChange={setActiveFilters}
-          onClearFilters={() => setActiveFilters({ gender: '', minAge: '', maxAge: '', community: '' })}
-        />
-
-        {loading ? (
-          <div className="text-center py-20">
-            <Loader2 className="w-10 h-10 animate-spin mx-auto text-brand-gold" />
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {filteredProfiles.map((p) => (
-                <ProfileCard
-                  key={p.id}
-                  profile={p}
-                  onView={openViewProfile}
-                  onEdit={openEditProfile}
-                  onDelete={setDeleteTarget}
-                />
-              ))}
-            </div>
-
-            {isLoadingMore && (
-              <div className="text-center py-6">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
-                <span className="text-xs text-gray-400">Loading next 50...</span>
-              </div>
-            )}
-
-            {!hasMore && !loading && filteredProfiles.length > 0 && (
-              <div className="text-center py-6 text-gray-400 text-xs">All profiles loaded</div>
-            )}
-          </>
-        )}
-      </main>
-
-      <AIModal
-        isOpen={isAIModalOpen}
-        onClose={() => setIsAIModalOpen(false)}
-        aiInputText={aiInputText}
-        setAiInputText={setAiInputText}
-        onExtract={handleAIExtraction}
-        isProcessing={isProcessingAI}
-      />
-
+  const modals = (
+    <>
+      <AIModal isOpen={isAIModalOpen} onClose={() => setIsAIModalOpen(false)} aiInputText={aiInputText} setAiInputText={setAiInputText} onExtract={handleAIExtraction} isProcessing={isProcessingAI} />
       <ProfileFormModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -397,25 +391,111 @@ export default function App() {
         galleryRef={galleryRef}
         expandedSection={expandedSection}
         setExpandedSection={setExpandedSection}
+        isSaving={isSavingProfile}
+        isUploadingAvatar={isUploadingAvatar}
+        galleryUpload={galleryUpload}
       />
-
       {isViewModalOpen && currentProfile && (
-        <ProfileViewModal
-          profile={currentProfile}
-          onClose={() => setIsViewModalOpen(false)}
-          onPrint={() => printBiodata(currentProfile)}
+        <ProfileViewModal profile={currentProfile} onClose={() => setIsViewModalOpen(false)} onPrint={() => printBiodata(currentProfile)} />
+      )}
+      {importConfirmation && (
+        <ImportConfirmModal
+          onCancel={() => setImportConfirmation(null)}
+          onConfirm={executeImport}
+          isImporting={isImporting}
         />
       )}
-
-      {importConfirmation && (
-        <ImportConfirmModal onCancel={() => setImportConfirmation(null)} onConfirm={executeImport} />
-      )}
-
       <DeleteConfirmModal
         deleteTarget={deleteTarget}
-        onCancel={() => setDeleteTarget(null)}
+        onCancel={() => !isDeleting && setDeleteTarget(null)}
         onConfirm={executeDelete}
+        isDeleting={isDeleting}
       />
-    </div>
+      <OperationOverlay
+        open={isImporting}
+        title="Importing CSV"
+        message={importProgress?.label || 'Processing your file...'}
+        progress={importProgress?.total ? importProgress : null}
+        indeterminate={!importProgress?.total}
+      />
+      <OperationOverlay
+        open={isDeleting && deleteTarget === 'ALL'}
+        title="Deleting All Profiles"
+        message="Removing records from Firebase..."
+        progress={deleteProgress}
+        indeterminate={!deleteProgress?.total}
+      />
+      <OperationOverlay
+        open={isExporting}
+        title="Exporting CSV"
+        message="Preparing your download..."
+        indeterminate
+      />
+    </>
+  );
+
+  return (
+    <AppShell {...shellProps}>
+      <Notification notification={notification} />
+
+      {activeView === 'dashboard' && (
+        <>
+          <div className="lg:hidden mb-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold mb-1">Profiles</p>
+            <h1 className="font-display text-2xl font-bold text-brand-text">Candidates</h1>
+            <p className="text-sm text-brand-muted mt-0.5">{filteredProfiles.length} loaded</p>
+          </div>
+
+          <ProfileFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            showFilters={showFilters}
+            onToggleFilters={() => setShowFilters(!showFilters)}
+            activeFilters={activeFilters}
+            onFilterChange={setActiveFilters}
+            onClearFilters={() => setActiveFilters({ gender: '', minAge: '', maxAge: '', community: '' })}
+          />
+
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+              <Loader2 className="w-10 h-10 animate-spin text-brand-gold" />
+              <div className="text-center">
+                <p className="text-sm font-medium text-brand-text">Loading profiles...</p>
+                <p className="text-xs text-brand-muted mt-1">Fetching data from Firebase</p>
+              </div>
+            </div>
+          ) : filteredProfiles.length === 0 ? (
+            <div className="sw-card p-12 text-center">
+              <p className="font-display text-xl text-brand-text mb-2">No profiles yet</p>
+              <p className="text-sm text-brand-muted mb-6">Add a candidate or import a CSV to get started</p>
+              <button onClick={openAddProfile} className="sw-btn-primary px-6 py-2.5 text-sm">Add First Profile</button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
+                {filteredProfiles.map((p) => (
+                  <ProfileCard key={p.id} profile={p} onView={openViewProfile} onEdit={openEditProfile} onDelete={setDeleteTarget} />
+                ))}
+              </div>
+              {isLoadingMore && (
+                <div className="text-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-brand-gold" />
+                  <span className="text-xs text-brand-muted mt-2 block">Loading next batch...</span>
+                </div>
+              )}
+              {!hasMore && !loading && (
+                <p className="text-center py-8 text-xs text-brand-muted">All profiles loaded</p>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {activeView === 'bulk-edit' && <BulkEditView profiles={profiles} loading={loading} />}
+      {activeView === 'matcher' && <DuplicateCheckerView profiles={profiles} loading={loading} />}
+      {activeView === 'reports' && <ReportsView profiles={profiles} />}
+
+      {modals}
+    </AppShell>
   );
 }

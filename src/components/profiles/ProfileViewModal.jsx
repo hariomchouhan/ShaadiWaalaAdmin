@@ -1,77 +1,94 @@
-import { Share2, X } from 'lucide-react';
+import { Printer, X, MapPin, Phone } from 'lucide-react';
 import { PROFILE_SCHEMA } from '../../constants/profileSchema';
-import { formatDate } from '../../utils/dateUtils';
+import { formatDate, getAge } from '../../utils/dateUtils';
 
 const VIEW_SECTIONS = [
-  ...new Set(
-    PROFILE_SCHEMA.filter((f) => f.section !== 'Core').map((f) => f.section)
-  ),
+  ...new Set(PROFILE_SCHEMA.filter((f) => f.section !== 'Core').map((f) => f.section)),
 ];
 
 export default function ProfileViewModal({ profile, onClose, onPrint }) {
   if (!profile) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
-      <div className="bg-white rounded-xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
-        <div className="bg-brand-brown p-4 text-white flex justify-between items-center">
-          <h2 className="font-bold text-xl">{profile.fullName}</h2>
-          <div className="flex gap-3 items-center">
-            <button onClick={onPrint} title="Print" className="hover:opacity-80 transition-opacity">
-              <Share2 className="w-5 h-5" />
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-panel sm:max-w-4xl h-[95vh] sm:h-[90vh]" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header bg-brand-brown text-white border-brand-gold/20">
+          <div className="min-w-0">
+            <h2 className="font-display text-lg sm:text-xl font-bold truncate">{profile.fullName}</h2>
+            <div className="flex flex-wrap items-center gap-3 mt-1 text-white/70 text-xs">
+              {profile.refId && <span className="sw-badge bg-white/10 text-brand-gold border-brand-gold/30">#{profile.refId}</span>}
+              {profile.community && <span>{profile.community}</span>}
+              {profile.dob && <span>{getAge(profile.dob)}</span>}
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button onClick={onPrint} title="Print Biodata" className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+              <Printer className="w-5 h-5" />
             </button>
-            <button onClick={onClose} className="hover:opacity-80 transition-opacity">
-              <X className="w-6 h-6" />
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-6 bg-brand-cream/30">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <div className="aspect-[3/4] bg-brand-cream rounded-lg overflow-hidden mb-4 border border-brand-primary/10 shadow-sm">
-                {profile.avatar && (
-                  <img
-                    src={profile.avatar}
-                    alt={profile.fullName}
-                    className="w-full h-full object-cover object-top"
-                  />
+
+        <div className="modal-body bg-brand-surface/50">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-4 space-y-4">
+              <div className="sw-card overflow-hidden">
+                <div className="aspect-[3/4] bg-brand-surface">
+                  {profile.avatar ? (
+                    <img src={profile.avatar} alt={profile.fullName} className="w-full h-full object-cover object-top" />
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-brand-gold/30 text-sm">No photo</div>
+                  )}
+                </div>
+                {(profile.phone || profile.location) && (
+                  <div className="p-4 space-y-2 border-t border-brand-gold/10">
+                    {profile.phone && (
+                      <p className="flex items-center gap-2 text-sm text-brand-text">
+                        <Phone className="w-4 h-4 text-brand-gold shrink-0" /> {profile.phone}
+                      </p>
+                    )}
+                    {profile.location && (
+                      <p className="flex items-center gap-2 text-sm text-brand-muted">
+                        <MapPin className="w-4 h-4 text-brand-gold shrink-0" /> {profile.location}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
-              {profile.gallery && profile.gallery.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mt-4">
+              {profile.gallery?.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
                   {profile.gallery.map((img, i) => (
-                    <div
-                      key={i}
-                      className="aspect-[3/4] bg-brand-cream rounded overflow-hidden border border-brand-primary/10 shadow-sm"
-                    >
+                    <div key={i} className="aspect-[3/4] sw-card overflow-hidden p-0">
                       <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
                     </div>
                   ))}
                 </div>
               )}
             </div>
-            <div className="md:col-span-2 space-y-4">
+
+            <div className="lg:col-span-8 space-y-4">
               {VIEW_SECTIONS.map((section) => {
                 const fields = PROFILE_SCHEMA.filter((f) => f.section === section);
-                const hasData = fields.some((f) => profile[f.key]);
-                if (!hasData) return null;
+                const visible = fields.filter((f) => profile[f.key]);
+                if (visible.length === 0) return null;
 
                 return (
-                  <div key={section} className="bg-white p-4 rounded shadow-sm border border-brand-primary/5">
-                    <h3 className="font-bold text-brand-dark border-b border-brand-primary/10 pb-2 mb-3">
+                  <div key={section} className="sw-card p-4 sm:p-5">
+                    <h3 className="font-display font-bold text-brand-text text-base mb-4 pb-2 border-b border-brand-gold/15 flex items-center gap-2">
+                      <span className="w-1 h-4 bg-brand-gold rounded-full" />
                       {section}
                     </h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      {fields.map((f) =>
-                        profile[f.key] ? (
-                          <div key={f.key}>
-                            <span className="block text-xs text-gray-500">{f.label}</span>
-                            <span className="text-brand-dark">
-                              {f.type === 'date' ? formatDate(profile[f.key]) : profile[f.key]}
-                            </span>
-                          </div>
-                        ) : null
-                      )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                      {visible.map((f) => (
+                        <div key={f.key}>
+                          <span className="sw-label">{f.label}</span>
+                          <p className="text-sm text-brand-text font-medium break-words">
+                            {f.type === 'date' ? formatDate(profile[f.key]) : profile[f.key]}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 );

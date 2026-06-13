@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import {
-  ArrowLeft, Search, Save, Loader2, CheckCircle, Image as ImageIcon,
-} from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Save, Loader2, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { updateProfile } from '../../services/profileService';
 import { RELIGIONS } from '../../constants/options';
+import PageHeader from '../layout/PageHeader';
 
-export default function BulkEditView({ profiles, onBack }) {
+export default function BulkEditView({ profiles, loading = false }) {
   const [localProfiles, setLocalProfiles] = useState(profiles);
   const [searchTerm, setSearchTerm] = useState('');
   const [savingRows, setSavingRows] = useState({});
@@ -30,6 +29,7 @@ export default function BulkEditView({ profiles, onBack }) {
   };
 
   const handleSaveRow = async (profile) => {
+    if (savingRows[profile.id] === 'saving') return;
     setSavingRows((prev) => ({ ...prev, [profile.id]: 'saving' }));
     try {
       const { id, ...data } = profile;
@@ -44,99 +44,98 @@ export default function BulkEditView({ profiles, onBack }) {
   };
 
   return (
-    <div className="bg-white min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <button onClick={onBack} className="p-2 hover:bg-brand-cream rounded-full"><ArrowLeft /></button>
-          <h2 className="text-2xl font-display font-bold text-brand-dark">Universal Edit (Bulk)</h2>
-          <div className="flex-1 max-w-sm ml-4 relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by name..."
-              className="pl-9 p-2 border rounded-lg w-full text-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+    <div>
+      <PageHeader
+        title="Bulk Edit"
+        subtitle="Edit multiple profiles inline — changes save on blur or instantly for dropdowns"
+        badge={`${filtered.length} profiles`}
+      >
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-muted" />
+          <input
+            type="text"
+            placeholder="Search by name..."
+            className="sw-input pl-9 py-2 text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
+      </PageHeader>
 
-        <div className="overflow-x-auto border rounded-xl shadow-sm bg-white">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-brand-cream text-gray-700 font-bold uppercase text-xs sticky top-0 z-10">
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-gold" />
+          <p className="text-sm text-brand-muted">Loading profiles...</p>
+        </div>
+      ) : (
+      <div className="sw-card overflow-hidden">
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full text-sm text-left min-w-[800px]">
+            <thead className="bg-brand-surface text-brand-muted font-semibold uppercase text-[10px] tracking-wider sticky top-0 z-10 border-b border-brand-gold/15">
               <tr>
-                <th className="px-4 py-3 w-16">Img</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3 w-28 bg-blue-50 border-x border-blue-100 text-blue-800">Gender</th>
-                <th className="px-4 py-3 w-24 bg-purple-50 border-x border-purple-100 text-purple-800">NRI</th>
-                <th className="px-4 py-3">DOB</th>
-                <th className="px-4 py-3">Caste</th>
-                <th className="px-4 py-3 bg-yellow-50/50 border-x border-yellow-100">Reference</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3 w-20 text-center">Action</th>
+                <th className="px-4 py-3 w-14">Photo</th>
+                <th className="px-4 py-3 min-w-[140px]">Name</th>
+                <th className="px-4 py-3 w-28">Gender</th>
+                <th className="px-4 py-3 w-24">NRI</th>
+                <th className="px-4 py-3 w-32">DOB</th>
+                <th className="px-4 py-3 w-28">Caste</th>
+                <th className="px-4 py-3 min-w-[100px]">Reference</th>
+                <th className="px-4 py-3 min-w-[110px]">Phone</th>
+                <th className="px-4 py-3 w-16 text-center">Save</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-brand-gold/10">
               {filtered.map((p) => (
-                <tr key={p.id} className="hover:bg-brand-cream/50 group">
+                <tr key={p.id} className="hover:bg-brand-gold/5 transition-colors">
                   <td className="px-4 py-2">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full overflow-hidden border">
-                      {p.avatar ? <img src={p.avatar} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="w-5 h-5 m-auto mt-2.5 text-gray-300" />}
+                    <div className="w-10 h-10 bg-brand-surface rounded-lg overflow-hidden border border-brand-gold/10">
+                      {p.avatar ? <img src={p.avatar} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="w-5 h-5 m-auto mt-2.5 text-brand-gold/30" />}
                     </div>
                   </td>
                   <td className="px-4 py-2">
-                    <input
-                      type="text"
-                      className="w-full p-1 border border-transparent hover:border-gray-300 rounded bg-transparent focus:bg-white focus:border-brand-primary outline-none transition-all font-medium"
-                      value={p.fullName || ''}
-                      onChange={(e) => handleChange(p.id, 'fullName', e.target.value)}
-                      onBlur={() => handleBlur(p.id)}
-                    />
+                    <input type="text" className="w-full px-2 py-1.5 border border-transparent hover:border-brand-gold/20 rounded-lg bg-transparent focus:bg-brand-bg focus:border-brand-gold outline-none font-medium text-brand-text" value={p.fullName || ''} onChange={(e) => handleChange(p.id, 'fullName', e.target.value)} onBlur={() => handleBlur(p.id)} />
                   </td>
-                  <td className="px-4 py-2 bg-blue-50/30 border-x border-blue-50">
-                    <select
-                      className="w-full p-1.5 border border-blue-200 rounded bg-white text-blue-900 font-bold cursor-pointer outline-none"
-                      value={p.gender || ''}
-                      onChange={(e) => handleChange(p.id, 'gender', e.target.value)}
-                    >
-                      <option value="">Select</option>
+                  <td className="px-4 py-2">
+                    <select className="sw-select py-1.5 text-xs" value={p.gender || ''} onChange={(e) => handleChange(p.id, 'gender', e.target.value)}>
+                      <option value="">—</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                     </select>
                   </td>
-                  <td className="px-4 py-2 bg-purple-50/30 border-x border-purple-50">
-                    <select
-                      className="w-full p-1.5 border border-purple-200 rounded bg-white text-purple-900 font-bold cursor-pointer outline-none"
-                      value={p.nri || ''}
-                      onChange={(e) => handleChange(p.id, 'nri', e.target.value)}
-                    >
-                      <option value="">-</option>
+                  <td className="px-4 py-2">
+                    <select className="sw-select py-1.5 text-xs" value={p.nri || ''} onChange={(e) => handleChange(p.id, 'nri', e.target.value)}>
+                      <option value="">—</option>
                       <option value="No">No</option>
                       <option value="Yes">Yes</option>
                     </select>
                   </td>
                   <td className="px-4 py-2">
-                    <input type="date" className="w-full p-1 border border-transparent hover:border-gray-300 rounded bg-transparent focus:bg-white outline-none text-xs text-gray-500" value={p.dob || ''} onChange={(e) => handleChange(p.id, 'dob', e.target.value)} onBlur={() => handleBlur(p.id)} />
+                    <input type="date" className="w-full px-2 py-1.5 border border-transparent hover:border-brand-gold/20 rounded-lg bg-transparent focus:bg-brand-bg outline-none text-xs" value={p.dob || ''} onChange={(e) => handleChange(p.id, 'dob', e.target.value)} onBlur={() => handleBlur(p.id)} />
                   </td>
                   <td className="px-4 py-2">
-                    <select className="w-full p-1 border border-transparent hover:border-gray-300 rounded bg-transparent focus:bg-white outline-none text-xs" value={p.community || ''} onChange={(e) => handleChange(p.id, 'community', e.target.value)}>
-                      <option value="">Select</option>
+                    <select className="sw-select py-1.5 text-xs" value={p.community || ''} onChange={(e) => handleChange(p.id, 'community', e.target.value)}>
+                      <option value="">—</option>
                       {RELIGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                     </select>
                   </td>
-                  <td className="px-4 py-2 bg-yellow-50/20 border-x border-yellow-50">
-                    <input type="text" placeholder="Ref..." className="w-full p-1 border border-transparent hover:border-gray-300 rounded bg-transparent focus:bg-white outline-none text-xs text-gray-600 font-bold" value={p.reference || ''} onChange={(e) => handleChange(p.id, 'reference', e.target.value)} onBlur={() => handleBlur(p.id)} />
+                  <td className="px-4 py-2">
+                    <input type="text" className="w-full px-2 py-1.5 border border-transparent hover:border-brand-gold/20 rounded-lg bg-transparent focus:bg-brand-bg outline-none text-xs" value={p.reference || ''} onChange={(e) => handleChange(p.id, 'reference', e.target.value)} onBlur={() => handleBlur(p.id)} />
                   </td>
                   <td className="px-4 py-2">
-                    <input type="text" className="w-full p-1 border border-transparent hover:border-gray-300 rounded bg-transparent focus:bg-white outline-none text-xs" value={p.phone || ''} onChange={(e) => handleChange(p.id, 'phone', e.target.value)} onBlur={() => handleBlur(p.id)} />
+                    <input type="text" className="w-full px-2 py-1.5 border border-transparent hover:border-brand-gold/20 rounded-lg bg-transparent focus:bg-brand-bg outline-none text-xs" value={p.phone || ''} onChange={(e) => handleChange(p.id, 'phone', e.target.value)} onBlur={() => handleBlur(p.id)} />
                   </td>
                   <td className="px-4 py-2 text-center">
                     {savingRows[p.id] === 'saving' ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-brand-primary mx-auto" />
+                      <Loader2 className="w-5 h-5 animate-spin text-brand-gold mx-auto" />
                     ) : savingRows[p.id] === 'success' ? (
-                      <CheckCircle className="w-5 h-5 text-green-600 mx-auto" />
+                      <CheckCircle className="w-5 h-5 text-brand-gold mx-auto" />
                     ) : (
-                      <button onClick={() => handleSaveRow(p)} className="p-1.5 text-gray-400 hover:text-brand-primary hover:bg-brand-cream rounded transition-colors" title="Save Row">
+                      <button
+                        onClick={() => handleSaveRow(p)}
+                        disabled={savingRows[p.id] === 'saving'}
+                        className="p-1.5 sw-btn-ghost disabled:opacity-40"
+                        title="Save"
+                      >
                         <Save className="w-4 h-4" />
                       </button>
                     )}
@@ -147,6 +146,7 @@ export default function BulkEditView({ profiles, onBack }) {
           </table>
         </div>
       </div>
+      )}
     </div>
   );
 }

@@ -61,29 +61,40 @@ export async function deleteProfile(id) {
   await deleteDoc(doc(db, COLLECTION, id));
 }
 
-export async function deleteAllProfiles() {
+export async function deleteAllProfiles(onProgress) {
   if (!db) throw new Error('Firebase not configured');
   const snap = await getDocs(collection(db, COLLECTION));
+  const total = snap.docs.length;
+  if (total === 0) return 0;
+
+  let deleted = 0;
   for (let i = 0; i < snap.docs.length; i += BATCH_SIZE) {
     const batch = writeBatch(db);
-    snap.docs.slice(i, i + BATCH_SIZE).forEach((d) => batch.delete(d.ref));
+    const chunk = snap.docs.slice(i, i + BATCH_SIZE);
+    chunk.forEach((d) => batch.delete(d.ref));
     await batch.commit();
+    deleted += chunk.length;
+    onProgress?.({ current: deleted, total });
   }
+  return deleted;
 }
 
-export async function batchImportProfiles(profilesData) {
+export async function batchImportProfiles(profilesData, onProgress) {
   if (!db) throw new Error('Firebase not configured');
   const now = new Date().toISOString();
+  const total = profilesData.length;
   let count = 0;
 
   for (let i = 0; i < profilesData.length; i += BATCH_SIZE) {
     const batch = writeBatch(db);
-    profilesData.slice(i, i + BATCH_SIZE).forEach((data) => {
+    const chunk = profilesData.slice(i, i + BATCH_SIZE);
+    chunk.forEach((data) => {
       const ref = doc(collection(db, COLLECTION));
       batch.set(ref, { ...data, createdAt: now, updatedAt: now });
       count++;
     });
     await batch.commit();
+    onProgress?.({ current: count, total });
   }
 
   return count;

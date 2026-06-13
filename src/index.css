@@ -34,15 +34,47 @@
 
 @layer components {
   .sw-input {
-    @apply w-full px-4 py-3 bg-brand-surface border border-brand-gold/20 rounded-sm text-brand-text outline-none transition-colors focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30;
+    @apply w-full px-4 py-2.5 sm:py-3 bg-brand-bg border border-brand-gold/20 rounded-lg text-brand-text text-sm sm:text-base outline-none transition-all duration-200 focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 placeholder:text-brand-muted/60;
+  }
+
+  .sw-select {
+    @apply sw-input appearance-none cursor-pointer;
   }
 
   .sw-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-brand-gold text-white font-medium tracking-wide rounded-sm shadow-gold hover:bg-brand-gold-light transition-all duration-300 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 bg-brand-gold text-white font-medium tracking-wide rounded-lg shadow-gold hover:bg-brand-gold-light transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
   }
 
   .sw-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 bg-brand-brown-deep text-brand-text border border-brand-gold/25 rounded-sm font-medium tracking-wide hover:border-brand-gold hover:text-brand-gold transition-all duration-300;
+    @apply inline-flex items-center justify-center gap-2 bg-brand-bg text-brand-text border border-brand-gold/25 rounded-lg font-medium tracking-wide hover:border-brand-gold hover:text-brand-gold hover:bg-brand-surface transition-all duration-300;
+  }
+
+  .sw-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 text-brand-muted hover:text-brand-gold hover:bg-brand-gold/5 rounded-lg transition-all duration-200;
+  }
+
+  .sw-btn-danger {
+    @apply inline-flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-all duration-200;
+  }
+
+  .sw-card {
+    @apply bg-brand-bg rounded-xl border border-brand-gold/10 card-shadow;
+  }
+
+  .sw-page-title {
+    @apply font-display text-2xl sm:text-3xl font-bold text-brand-text tracking-tight;
+  }
+
+  .sw-page-subtitle {
+    @apply text-sm text-brand-muted mt-1;
+  }
+
+  .sw-label {
+    @apply block text-xs font-semibold uppercase tracking-wider text-brand-muted mb-1.5;
+  }
+
+  .sw-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-gold/10 text-brand-gold border border-brand-gold/20;
   }
 
   .font-display {
@@ -58,17 +90,57 @@
 
   .gold-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.45), transparent);
   }
 
   .glass-nav {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 1px 0 rgba(197, 160, 89, 0.12);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 1px 0 rgba(197, 160, 89, 0.1);
   }
 
   .card-shadow {
     box-shadow: 0 4px 24px rgba(45, 31, 24, 0.06);
+  }
+
+  .sidebar-gradient {
+    background: linear-gradient(180deg, #4a3728 0%, #3d2e22 100%);
+  }
+
+  .hero-gradient {
+    background: linear-gradient(135deg, rgba(197, 160, 89, 0.12) 0%, rgba(243, 237, 228, 0.6) 50%, rgba(250, 247, 242, 0.9) 100%);
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-brand-brown/60 backdrop-blur-sm p-0 sm:p-4;
+  }
+
+  .modal-panel {
+    @apply bg-brand-bg w-full sm:rounded-2xl border border-brand-gold/15 card-shadow max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col;
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between px-5 sm:px-6 py-4 border-b border-brand-gold/10 bg-brand-surface/50 shrink-0;
+  }
+
+  .modal-body {
+    @apply flex-1 overflow-y-auto px-5 sm:px-6 py-5;
+  }
+
+  .modal-footer {
+    @apply flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 px-5 sm:px-6 py-4 border-t border-brand-gold/10 bg-brand-surface/30 shrink-0;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(197, 160, 89, 0.4) transparent;
+  }
+
+  @keyframes sw-progress {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
   }
 }

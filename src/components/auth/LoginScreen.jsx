@@ -2,6 +2,7 @@ import { Lock, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { BRAND } from '../../config/brand';
 import { getAuthErrorMessage } from '../../services/authService';
+import BrandLogo from '../common/BrandLogo';
 
 export default function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -23,68 +24,92 @@ export default function LoginScreen({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brand-surface p-4">
-      <div className="bg-brand-bg rounded-sm card-shadow p-8 w-full max-w-md border border-brand-gold/15">
-        <div className="text-center mb-8">
-          <div className="bg-brand-gold w-14 h-14 rounded-sm flex items-center justify-center mx-auto mb-5 shadow-gold">
-            <Lock className="w-7 h-7 text-white" />
-          </div>
-          <span className="text-brand-gold text-xs tracking-[0.25em] uppercase font-medium">
-            Elite & NRI Matrimony
-          </span>
-          <h1 className="text-3xl font-display font-bold text-brand-text mt-2">
-            <span className="gold-gradient-text">{BRAND.name}</span>
-          </h1>
-          <p className="text-brand-muted text-sm mt-2">{BRAND.tagline}</p>
-          <div className="gold-divider my-4" />
-          <p className="text-xs text-brand-muted">{BRAND.domain}</p>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Brand panel */}
+      <div className="hidden lg:flex lg:w-1/2 sidebar-gradient relative overflow-hidden items-center justify-center p-12">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-64 h-64 rounded-full border border-brand-gold/40" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full border border-brand-gold/20" />
         </div>
+        <div className="relative text-center max-w-md">
+          <BrandLogo size="hero" className="mx-auto mb-8 rounded-lg" />
+          <p className="text-brand-gold/90 text-sm tracking-[0.25em] uppercase mb-6">Elite & NRI Matrimony</p>
+          <p className="text-white/60 text-lg leading-relaxed">
+            Private admin portal for confidential profile management and matchmaking operations.
+          </p>
+          <div className="gold-divider my-8 opacity-50" />
+          <p className="text-white/40 text-sm">{BRAND.domain}</p>
+        </div>
+      </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          {error && (
-            <div className="p-3 rounded-sm bg-red-50 border border-red-200 text-red-700 text-sm">
-              {error}
+      {/* Form panel */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-brand-surface">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden text-center mb-8">
+            <BrandLogo size="lg" className="mx-auto mb-3 rounded-md" />
+            <p className="text-brand-muted text-sm mt-1">{BRAND.tagline}</p>
+          </div>
+
+          <div className="sw-card p-6 sm:p-8">
+            <div className="hidden lg:flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-brand-gold/15 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-brand-gold" />
+              </div>
+              <div>
+                <h2 className="font-display text-xl font-bold text-brand-text">Sign In</h2>
+                <p className="text-xs text-brand-muted">Access your admin dashboard</p>
+              </div>
             </div>
-          )}
 
-          <div>
-            <label className="block text-sm font-medium text-brand-text mb-1">Email</label>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              className="sw-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@shaadiwaala.in"
-              disabled={loading}
-            />
+            <form onSubmit={handleLogin} className="space-y-5">
+              {error && (
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="sw-label">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  autoComplete="email"
+                  className="sw-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@shaadiwaala.in"
+                  disabled={loading}
+                />
+              </div>
+
+              <div>
+                <label className="sw-label">Password</label>
+                <input
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  className="sw-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  disabled={loading}
+                />
+              </div>
+
+              <button type="submit" disabled={loading} className="sw-btn-primary w-full py-3 text-sm mt-2">
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Signing in...
+                  </span>
+                ) : (
+                  'Enter Admin Portal'
+                )}
+              </button>
+            </form>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-brand-text mb-1">Password</label>
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              className="sw-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={loading}
-            />
-          </div>
-
-          <button type="submit" disabled={loading} className="sw-btn-primary w-full py-3 text-sm disabled:opacity-60">
-            {loading ? (
-              <span className="inline-flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" /> Signing in...
-              </span>
-            ) : (
-              'Login to Admin'
-            )}
-          </button>
-        </form>
+          <p className="text-center text-xs text-brand-muted mt-6 lg:hidden">{BRAND.domain}</p>
+        </div>
       </div>
     </div>
   );

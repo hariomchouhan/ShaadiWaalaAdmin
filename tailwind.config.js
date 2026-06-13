@@ -42,6 +42,9 @@ export default {
         display: ['Playfair Display', 'Georgia', 'serif'],
         sans: ['DM Sans', 'system-ui', 'sans-serif'],
       },
+      screens: {
+        xs: '480px',
+      },
       boxShadow: {
         card: '0 4px 24px rgba(45, 31, 24, 0.06)',
         gold: '0 4px 24px rgba(197, 160, 89, 0.25)',
