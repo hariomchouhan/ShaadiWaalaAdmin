@@ -28,7 +28,7 @@ import {
   createProfile, updateProfile, deleteProfile, deleteAllProfiles, batchImportProfiles,
 } from './services/profileService';
 import { uploadProfilePhotoFromBase64 } from './services/storageService';
-import { extractProfileFromText } from './services/aiService';
+import { extractProfile } from './services/aiService';
 
 export default function App() {
   const { isAuthenticated, authLoading, login, logout } = useAuth();
@@ -113,12 +113,13 @@ export default function App() {
     return () => window.removeEventListener('paste', handleGlobalPaste);
   }, [isEditModalOpen, showNotification]);
 
-  const handleAIExtraction = async () => {
+  const handleAIExtraction = async ({ text, file } = {}) => {
     setIsProcessingAI(true);
     try {
-      const cleaned = await extractProfileFromText(aiInputText);
+      const cleaned = await extractProfile({ text, file });
       setFormData({ refId: getNextRefId(), ...cleaned });
       setIsAIModalOpen(false);
+      setAiInputText('');
       setCurrentProfile(null);
       setIsEditModalOpen(true);
       showNotification('Data extracted successfully!');
