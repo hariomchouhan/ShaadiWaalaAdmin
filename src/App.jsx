@@ -450,9 +450,26 @@ export default function App() {
             </div>
           ) : filteredProfiles.length === 0 ? (
             <div className="sw-card p-12 text-center">
-              <p className="font-display text-xl text-brand-text mb-2">No profiles yet</p>
-              <p className="text-sm text-brand-muted mb-6">Add a candidate or import a CSV to get started</p>
-              <button onClick={openAddProfile} className="sw-btn-primary px-6 py-2.5 text-sm">Add First Profile</button>
+              {searchTerm.trim() || Object.values(activeFilters).some(Boolean) ? (
+                <>
+                  <p className="font-display text-xl text-brand-text mb-2">No matching profiles</p>
+                  <p className="text-sm text-brand-muted mb-6">
+                    No profile contains &ldquo;{searchTerm.trim() || 'your filters'}&rdquo;. Try a different word.
+                  </p>
+                  <button
+                    onClick={() => { setSearchTerm(''); setActiveFilters({ gender: '', minAge: '', maxAge: '', community: '' }); }}
+                    className="sw-btn-secondary px-6 py-2.5 text-sm"
+                  >
+                    Clear search
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="font-display text-xl text-brand-text mb-2">No profiles yet</p>
+                  <p className="text-sm text-brand-muted mb-6">Add a candidate or import a CSV to get started</p>
+                  <button onClick={openAddProfile} className="sw-btn-primary px-6 py-2.5 text-sm">Add First Profile</button>
+                </>
+              )}
             </div>
           ) : (
             <>

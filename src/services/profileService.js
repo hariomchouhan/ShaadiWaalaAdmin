@@ -3,7 +3,8 @@ import {
   addDoc, updateDoc, deleteDoc, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { ITEMS_PER_PAGE, SEARCH_FIELDS } from '../constants/profileSchema';
+import { ITEMS_PER_PAGE } from '../constants/profileSchema';
+import { profileMatchesSearch } from '../utils/searchUtils';
 
 const COLLECTION = 'profiles';
 const BATCH_SIZE = 500;
@@ -12,21 +13,13 @@ function mapDoc(d) {
   return { id: d.id, ...d.data() };
 }
 
-function matchesSearch(profile, term) {
-  const lower = term.toLowerCase();
-  return SEARCH_FIELDS.some((field) =>
-    String(profile[field] ?? '').toLowerCase().includes(lower)
-  );
-}
-
 export async function fetchProfiles({ lastDocSnapshot = null, searchTerm = '', pageSize = ITEMS_PER_PAGE } = {}) {
   if (!db) throw new Error('Firebase not configured');
 
   if (searchTerm?.trim()) {
-    const q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'), limit(500));
-    const snap = await getDocs(q);
-    const filtered = snap.docs.map(mapDoc).filter((p) => matchesSearch(p, searchTerm.trim()));
-    return { profiles: filtered.slice(0, pageSize), lastDoc: null, hasMore: false };
+    const snap = await getDocs(query(collection(db, COLLECTION), orderBy('createdAt', 'desc')));
+    const filtered = snap.docs.map(mapDoc).filter((p) => profileMatchesSearch(p, searchTerm.trim()));
+    return { profiles: filtered, lastDoc: null, hasMore: false };
   }
 
   let q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'), limit(pageSize));

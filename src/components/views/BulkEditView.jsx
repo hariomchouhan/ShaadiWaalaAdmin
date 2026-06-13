@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Search, Save, Loader2, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { updateProfile } from '../../services/profileService';
 import { RELIGIONS } from '../../constants/options';
+import { profileMatchesSearch } from '../../utils/searchUtils';
 import PageHeader from '../layout/PageHeader';
 
 export default function BulkEditView({ profiles, loading = false }) {
@@ -12,7 +13,7 @@ export default function BulkEditView({ profiles, loading = false }) {
   useEffect(() => { setLocalProfiles(profiles); }, [profiles]);
 
   const filtered = useMemo(() =>
-    localProfiles.filter((p) => (p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase())),
+    localProfiles.filter((p) => profileMatchesSearch(p, searchTerm)),
   [localProfiles, searchTerm]);
 
   const handleChange = (id, field, value) => {
@@ -54,7 +55,7 @@ export default function BulkEditView({ profiles, loading = false }) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-muted" />
           <input
             type="text"
-            placeholder="Search by name..."
+            placeholder="Search anything in profile..."
             className="sw-input pl-9 py-2 text-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

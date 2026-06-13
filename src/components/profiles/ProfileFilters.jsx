@@ -20,7 +20,7 @@ export default function ProfileFilters({
             <input
               type="text"
               className="sw-input pl-10"
-              placeholder="Search by name, phone, caste, ref ID..."
+              placeholder="Search anything — name, city, phone, notes, father name..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
             />
