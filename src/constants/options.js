@@ -1,4 +1,4 @@
-export const RELIGIONS = ['Baniya', 'Hindu', 'Jain', 'Muslim', 'Sikh', 'Sindhi', 'Punjabi', 'Other'];
+export const RELIGIONS = ['Baniya', 'Hindu', 'Jain', 'Brahmin', 'Sikh (AmtriDhari)', 'Sikh (Non-AmtriDhari)', 'Sindhi', 'Punjabi', 'Other'];
 export const MARITAL_STATUS = ['Unmarried', 'Divorced', 'Separated', 'Widowed'];
 export const COMPLEXION = ['Very Fair', 'Fair', 'Wheatish', 'Wheatish Brown', 'Dark'];
 export const HEIGHTS = ["4'07", "4'08", "4'09", "4'10", "4'11", "5'0", "5'01", "5'02", "5'03", "5'04", "5'05", "5'06", "5'07", "5'08", "5'09", "5'10", "5'11", "6'0", "6'01", "6'02", "6'03", "6'04", "6'05", "6'06", "6'07"];
