@@ -1,6 +1,14 @@
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { PROFILE_SCHEMA } from '../../constants/profileSchema';
+import { PROFILE_SCHEMA, isProfileFieldVisible } from '../../constants/profileSchema';
+
+function handleFieldChange(field, value, formData, setFormData) {
+  const next = { ...formData, [field.key]: value };
+  if (field.key === 'residenceType' && value !== 'Own') {
+    next.ownResidenceKind = '';
+  }
+  setFormData(next);
+}
 
 export default function ProfileFormFields({
   formData,
@@ -14,6 +22,8 @@ export default function ProfileFormFields({
   return (
     <div className="flex flex-wrap -mx-2">
       {PROFILE_SCHEMA.filter((f) => f.section !== 'Core').map((field) => {
+        if (!isProfileFieldVisible(field, formData)) return null;
+
         const isNewSection = field.section !== currentSection;
         currentSection = field.section;
         const isOpen = expandedSection === field.section;
@@ -45,7 +55,7 @@ export default function ProfileFormFields({
               </div>
             )}
             {isOpen && (
-              <div className={`px-2 mb-3 w-full`}>
+              <div className="px-2 mb-3 w-full">
                 <label className="sw-label">
                   {field.label}
                   {field.required && <span className="text-red-500 normal-case"> *</span>}
@@ -55,14 +65,14 @@ export default function ProfileFormFields({
                     className="sw-input resize-none"
                     rows={3}
                     value={formData[field.key] || ''}
-                    onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                    onChange={(e) => handleFieldChange(field, e.target.value, formData, setFormData)}
                     disabled={disabled}
                   />
                 ) : field.type === 'select' ? (
                   <select
                     className="sw-select"
                     value={formData[field.key] || ''}
-                    onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                    onChange={(e) => handleFieldChange(field, e.target.value, formData, setFormData)}
                     required={field.required}
                     disabled={disabled}
                   >
@@ -77,7 +87,7 @@ export default function ProfileFormFields({
                     required={field.required}
                     className="sw-input"
                     value={formData[field.key] || ''}
-                    onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                    onChange={(e) => handleFieldChange(field, e.target.value, formData, setFormData)}
                     placeholder={field.placeholder || ''}
                     disabled={disabled}
                   />

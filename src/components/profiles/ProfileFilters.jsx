@@ -1,18 +1,17 @@
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { hasActiveMemberFilters, getMemberFilterSummary } from '../../utils/memberFilters';
 
 export default function ProfileFilters({
   searchTerm,
   onSearchChange,
-  showFilters,
-  onToggleFilters,
-  activeFilters,
-  onFilterChange,
-  onClearFilters,
+  onOpenFilters,
+  appliedMemberFilters,
 }) {
-  const hasActiveFilters = Object.values(activeFilters).some(Boolean);
+  const filtersActive = hasActiveMemberFilters(appliedMemberFilters);
+  const summary = getMemberFilterSummary(appliedMemberFilters);
 
   return (
-    <div className="mb-6 space-y-4">
+    <div className="mb-6 space-y-3">
       <div className="sw-card p-3 sm:p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -20,65 +19,31 @@ export default function ProfileFilters({
             <input
               type="text"
               className="sw-input pl-10"
-              placeholder="Search anything — name, city, phone, notes, father name..."
+              placeholder="Quick search — name, weight, city, phone..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
           <button
-            onClick={onToggleFilters}
-            className={`sw-btn-secondary px-4 py-2.5 text-sm shrink-0 ${showFilters ? 'border-brand-gold text-brand-gold bg-brand-gold/5' : ''}`}
+            type="button"
+            onClick={onOpenFilters}
+            className={`sw-btn-secondary px-4 py-2.5 text-sm shrink-0 ${filtersActive ? 'border-brand-gold text-brand-gold bg-brand-gold/5' : ''}`}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            Filters
-            {hasActiveFilters && !showFilters && (
-              <span className="w-2 h-2 rounded-full bg-brand-gold ml-1" />
-            )}
+            {filtersActive ? 'Edit Filters' : 'Filters'}
+            {filtersActive && <span className="w-2 h-2 rounded-full bg-brand-gold ml-0.5" />}
           </button>
         </div>
-
-        {showFilters && (
-          <div className="mt-4 pt-4 border-t border-brand-gold/10 grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3">
-            <div>
-              <label className="sw-label">Gender</label>
-              <select
-                className="sw-select"
-                value={activeFilters.gender}
-                onChange={(e) => onFilterChange({ ...activeFilters, gender: e.target.value })}
-              >
-                <option value="">All</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-            <div>
-              <label className="sw-label">Min Age</label>
-              <input
-                type="number"
-                placeholder="18"
-                className="sw-input"
-                value={activeFilters.minAge}
-                onChange={(e) => onFilterChange({ ...activeFilters, minAge: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="sw-label">Max Age</label>
-              <input
-                type="number"
-                placeholder="45"
-                className="sw-input"
-                value={activeFilters.maxAge}
-                onChange={(e) => onFilterChange({ ...activeFilters, maxAge: e.target.value })}
-              />
-            </div>
-            <div className="flex items-end">
-              <button onClick={onClearFilters} className="sw-btn-ghost w-full py-2.5 text-sm text-brand-gold">
-                <X className="w-4 h-4" /> Clear filters
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {filtersActive && summary && (
+        <div className="sw-card px-4 py-2.5 flex flex-wrap items-center gap-2 text-sm">
+          <span className="sw-badge">{summary}</span>
+          <button type="button" onClick={onOpenFilters} className="text-xs text-brand-gold hover:underline ml-auto">
+            Change filters
+          </button>
+        </div>
+      )}
     </div>
   );
 }

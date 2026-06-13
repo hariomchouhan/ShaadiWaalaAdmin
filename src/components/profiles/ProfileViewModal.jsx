@@ -1,5 +1,5 @@
 import { Printer, X, MapPin, Phone } from 'lucide-react';
-import { PROFILE_SCHEMA } from '../../constants/profileSchema';
+import { PROFILE_SCHEMA, isProfileFieldVisible } from '../../constants/profileSchema';
 import { formatDate, getAge } from '../../utils/dateUtils';
 
 const VIEW_SECTIONS = [
@@ -71,7 +71,7 @@ export default function ProfileViewModal({ profile, onClose, onPrint }) {
             <div className="lg:col-span-8 space-y-4">
               {VIEW_SECTIONS.map((section) => {
                 const fields = PROFILE_SCHEMA.filter((f) => f.section === section);
-                const visible = fields.filter((f) => profile[f.key]);
+                const visible = fields.filter((f) => isProfileFieldVisible(f, profile) && profile[f.key]);
                 if (visible.length === 0) return null;
 
                 return (

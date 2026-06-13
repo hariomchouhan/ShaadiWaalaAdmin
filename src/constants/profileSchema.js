@@ -1,7 +1,7 @@
 import { Crown, User, Calendar, Users, Phone, MapPin, ExternalLink, StickyNote } from 'lucide-react';
 import {
-  RELIGIONS, MARITAL_STATUS, COMPLEXION, HEIGHTS, DIET,
-  HABIT_YES_NO, YES_NO, RESIDENCE_TYPE, PLANS, PAYMENT_MODES,
+  RELIGIONS, MARITAL_STATUS, COMPLEXION, HEIGHTS, WEIGHTS, DIET,
+  HABIT_YES_NO, YES_NO, RESIDENCE_TYPE, OWN_RESIDENCE_KIND, PLANS, PAYMENT_MODES,
   STATES_INDIA, OCCUPATIONS, EDUCATION_LEVELS,
 } from './options';
 
@@ -20,6 +20,7 @@ export const PROFILE_SCHEMA = [
   { key: 'placeOfBirth', label: 'Place of Birth', type: 'text', width: 'w-1/3', csvHeader: 'Place of Birth', section: 'Basic Details' },
   { key: 'community', label: 'Religion', type: 'select', options: RELIGIONS, width: 'w-1/2', listPriority: 1, icon: Users, csvHeader: 'Community', section: 'Basic Details' },
   { key: 'height', label: 'Height', type: 'select', options: HEIGHTS, width: 'w-1/4', csvHeader: 'Height', section: 'Physical & Habits' },
+  { key: 'weight', label: 'Weight', type: 'select', options: WEIGHTS, width: 'w-1/4', csvHeader: 'Weight', section: 'Physical & Habits' },
   { key: 'complexion', label: 'Complexion', type: 'select', options: COMPLEXION, width: 'w-1/4', csvHeader: 'Complexion', section: 'Physical & Habits' },
   { key: 'disability', label: 'Any Disability', type: 'select', options: YES_NO, width: 'w-1/4', csvHeader: 'Any Disability', section: 'Physical & Habits' },
   { key: 'eating', label: 'Diet', type: 'select', options: DIET, width: 'w-1/4', csvHeader: 'Diet', section: 'Physical & Habits' },
@@ -47,6 +48,7 @@ export const PROFILE_SCHEMA = [
   { key: 'phone', label: 'Candidate Mobile', type: 'tel', width: 'w-1/2', listPriority: 1, icon: Phone, csvHeader: 'Phone', section: 'Contact Info' },
   { key: 'email', label: 'Email ID', type: 'email', width: 'w-1/2', csvHeader: 'Email ID', section: 'Contact Info' },
   { key: 'residenceType', label: 'Residence Type', type: 'select', options: RESIDENCE_TYPE, width: 'w-1/4', csvHeader: 'Residence Type', section: 'Contact Info' },
+  { key: 'ownResidenceKind', label: 'Type of Residence', type: 'select', options: OWN_RESIDENCE_KIND, width: 'w-1/4', csvHeader: 'Own Residence Type', section: 'Contact Info', showWhen: { key: 'residenceType', equals: 'Own' } },
   { key: 'location', label: 'City', type: 'text', width: 'w-1/4', listPriority: 2, icon: MapPin, csvHeader: 'Address', section: 'Contact Info' },
   { key: 'state', label: 'State', type: 'select', options: STATES_INDIA, width: 'w-1/4', csvHeader: 'State', section: 'Contact Info' },
   { key: 'pincode', label: 'Pin Code', type: 'text', width: 'w-1/4', csvHeader: 'Pin Code', section: 'Contact Info' },
@@ -63,3 +65,9 @@ export const SEARCH_FIELDS = [
 ];
 
 export const ITEMS_PER_PAGE = 50;
+
+/** Hide conditional fields (e.g. own residence kind when not Own). */
+export function isProfileFieldVisible(field, data) {
+  if (!field.showWhen) return true;
+  return data?.[field.showWhen.key] === field.showWhen.equals;
+}

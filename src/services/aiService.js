@@ -1,5 +1,5 @@
 import {
-  RELIGIONS, MARITAL_STATUS, HEIGHTS, OCCUPATIONS,
+  RELIGIONS, MARITAL_STATUS, HEIGHTS, WEIGHTS, OCCUPATIONS,
   EDUCATION_LEVELS, COMPLEXION, DIET,
 } from '../constants/options';
 import { normalizeDate, normalizeTime } from '../utils/dateUtils';
@@ -33,6 +33,7 @@ LISTS:
 - Religions: [${RELIGIONS.join(', ')}]
 - Marital Status: [${MARITAL_STATUS.join(', ')}]
 - Heights: [${HEIGHTS.join(', ')}]
+- Weights (kg): [${WEIGHTS.join(', ')}]
 - Occupations: [${OCCUPATIONS.join(', ')}]
 - Education: [${EDUCATION_LEVELS.join(', ')}]
 - Complexion: [${COMPLEXION.join(', ')}]
@@ -48,6 +49,7 @@ TARGET JSON (use empty string or 0 if not found):
   "community": "Match List",
   "maritalStatus": "Match List",
   "height": "Match List (e.g. 5'06)",
+  "weight": "Match List (e.g. 65 kg)",
   "complexion": "Match List",
   "eating": "Match List",
   "drinking": "No/Yes",
@@ -100,6 +102,15 @@ function cleanExtractedProfile(rawJson) {
     let hMatch = HEIGHTS.find((h) => h === cleaned.height);
     if (!hMatch) hMatch = fuzzyMatch(cleaned.height, HEIGHTS);
     cleaned.height = hMatch || '';
+  }
+  if (cleaned.weight) {
+    let wMatch = WEIGHTS.find((w) => w === cleaned.weight);
+    if (!wMatch) {
+      const kg = parseInt(String(cleaned.weight).replace(/\D/g, ''), 10);
+      if (!Number.isNaN(kg)) wMatch = WEIGHTS.find((w) => w.startsWith(`${kg} `));
+    }
+    if (!wMatch) wMatch = fuzzyMatch(cleaned.weight, WEIGHTS);
+    cleaned.weight = wMatch || '';
   }
   if (cleaned.educationLevel) cleaned.educationLevel = fuzzyMatch(cleaned.educationLevel, EDUCATION_LEVELS);
   if (cleaned.occupation) cleaned.occupation = fuzzyMatch(cleaned.occupation, OCCUPATIONS);

@@ -8,6 +8,7 @@ import Notification from './components/common/Notification';
 import OperationOverlay from './components/common/OperationOverlay';
 import ProfileCard from './components/profiles/ProfileCard';
 import ProfileFilters from './components/profiles/ProfileFilters';
+import MemberFilterDrawer from './components/profiles/MemberFilterDrawer';
 import ProfileFormModal from './components/profiles/ProfileFormModal';
 import ProfileViewModal from './components/profiles/ProfileViewModal';
 import AIModal from './components/modals/AIModal';
@@ -22,7 +23,11 @@ import { useNotification } from './hooks/useNotification';
 import { useProfiles } from './hooks/useProfiles';
 import { isFirebaseConfigured } from './config/firebase';
 import { PROFILE_SCHEMA } from './constants/profileSchema';
-import { getAgeNumber } from './utils/dateUtils';
+import {
+  DEFAULT_MEMBER_FILTERS,
+  applyMemberFilters,
+  hasActiveMemberFilters,
+} from './utils/memberFilters';
 import { compressImage } from './utils/imageUtils';
 import { parseCSV, downloadCSV } from './utils/csvUtils';
 import { printBiodata } from './utils/printBiodata';
@@ -39,8 +44,9 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const { profiles, loading, isLoadingMore, hasMore, refresh } = useProfiles(isAuthenticated, searchTerm);
 
-  const [activeFilters, setActiveFilters] = useState({ gender: '', minAge: '', maxAge: '', community: '' });
-  const [showFilters, setShowFilters] = useState(false);
+  const [appliedMemberFilters, setAppliedMemberFilters] = useState(null);
+  const [draftMemberFilters, setDraftMemberFilters] = useState(DEFAULT_MEMBER_FILTERS);
+  const [memberFilterDrawerOpen, setMemberFilterDrawerOpen] = useState(false);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -64,16 +70,28 @@ export default function App() {
   const fileInputRef = useRef(null);
   const galleryRef = useRef(null);
 
-  const filteredProfiles = useMemo(() =>
-    profiles.filter((p) => {
-      if (activeFilters.gender && p.gender !== activeFilters.gender) return false;
-      if (activeFilters.community && !p.community?.toLowerCase().includes(activeFilters.community.toLowerCase())) return false;
-      const age = getAgeNumber(p.dob);
-      if (activeFilters.minAge && (age === null || age < parseInt(activeFilters.minAge))) return false;
-      if (activeFilters.maxAge && (age === null || age > parseInt(activeFilters.maxAge))) return false;
-      return true;
-    }),
-  [profiles, activeFilters]);
+  const filteredProfiles = useMemo(() => {
+    let result = profiles;
+    if (appliedMemberFilters && hasActiveMemberFilters(appliedMemberFilters)) {
+      result = applyMemberFilters(result, appliedMemberFilters);
+    }
+    return result;
+  }, [profiles, appliedMemberFilters]);
+
+  const openMemberFilters = () => {
+    setDraftMemberFilters(appliedMemberFilters ? { ...appliedMemberFilters } : { ...DEFAULT_MEMBER_FILTERS });
+    setMemberFilterDrawerOpen(true);
+  };
+
+  const handleApplyMemberFilters = () => {
+    setAppliedMemberFilters({ ...draftMemberFilters });
+    setMemberFilterDrawerOpen(false);
+  };
+
+  const clearMemberFilters = () => {
+    setDraftMemberFilters({ ...DEFAULT_MEMBER_FILTERS });
+    setAppliedMemberFilters(null);
+  };
 
   const getNextRefId = () => {
     let maxId = 0;
@@ -430,14 +448,20 @@ export default function App() {
             <p className="text-sm text-brand-muted mt-0.5">{filteredProfiles.length} loaded</p>
           </div>
 
+          <MemberFilterDrawer
+            open={memberFilterDrawerOpen}
+            draft={draftMemberFilters}
+            setDraft={setDraftMemberFilters}
+            onApply={handleApplyMemberFilters}
+            onClose={() => setMemberFilterDrawerOpen(false)}
+            onClear={clearMemberFilters}
+          />
+
           <ProfileFilters
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            showFilters={showFilters}
-            onToggleFilters={() => setShowFilters(!showFilters)}
-            activeFilters={activeFilters}
-            onFilterChange={setActiveFilters}
-            onClearFilters={() => setActiveFilters({ gender: '', minAge: '', maxAge: '', community: '' })}
+            onOpenFilters={openMemberFilters}
+            appliedMemberFilters={appliedMemberFilters}
           />
 
           {loading ? (
@@ -450,17 +474,19 @@ export default function App() {
             </div>
           ) : filteredProfiles.length === 0 ? (
             <div className="sw-card p-12 text-center">
-              {searchTerm.trim() || Object.values(activeFilters).some(Boolean) ? (
+              {searchTerm.trim() || hasActiveMemberFilters(appliedMemberFilters) ? (
                 <>
                   <p className="font-display text-xl text-brand-text mb-2">No matching profiles</p>
                   <p className="text-sm text-brand-muted mb-6">
-                    No profile contains &ldquo;{searchTerm.trim() || 'your filters'}&rdquo;. Try a different word.
+                    {searchTerm.trim()
+                      ? `No profile contains "${searchTerm.trim()}". Try different keywords or filters.`
+                      : 'No profiles match your selected filters. Try adjusting the criteria.'}
                   </p>
                   <button
-                    onClick={() => { setSearchTerm(''); setActiveFilters({ gender: '', minAge: '', maxAge: '', community: '' }); }}
+                    onClick={() => { setSearchTerm(''); clearMemberFilters(); }}
                     className="sw-btn-secondary px-6 py-2.5 text-sm"
                   >
-                    Clear search
+                    Clear search & filters
                   </button>
                 </>
               ) : (

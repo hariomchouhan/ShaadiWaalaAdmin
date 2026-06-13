@@ -13,6 +13,7 @@ export function printBiodata(profile) {
       { label: 'Time of Birth', val: p.timeOfBirth },
       { label: 'Place of Birth', val: p.placeOfBirth },
       { label: 'Height', val: p.height },
+      { label: 'Weight', val: p.weight },
       { label: 'Complexion', val: p.complexion },
       { label: 'Religion / Caste', val: p.community },
       { label: 'Marital Status', val: p.maritalStatus },
@@ -40,7 +41,12 @@ export function printBiodata(profile) {
       },
       { label: 'Sibling Details', val: [p.brotherDetails, p.sisterDetails].filter(Boolean).join('; '), fullWidth: true },
       { label: 'Family Income', val: p.familyIncome },
-      { label: 'Residence', val: [p.residenceType, p.location, p.state].filter(Boolean).join(', ') },
+      { label: 'Residence', val: [
+        p.residenceType,
+        p.residenceType === 'Own' && p.ownResidenceKind ? p.ownResidenceKind : null,
+        p.location,
+        p.state,
+      ].filter(Boolean).join(', ') },
     ],
   };
 
