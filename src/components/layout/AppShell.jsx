@@ -137,10 +137,10 @@ export default function AppShell({
                 <p className="sw-page-subtitle">Manage elite & NRI matrimonial records privately</p>
               </div>
               <div className="flex items-center gap-3">
-                <div className="sw-card px-4 py-3 text-center min-w-[100px]">
+                {/* <div className="sw-card px-4 py-3 text-center min-w-[100px]">
                   <p className="text-2xl font-display font-bold text-brand-gold">{profileCount}</p>
                   <p className="text-[10px] uppercase tracking-wider text-brand-muted">Loaded</p>
-                </div>
+                </div> */}
                 <button onClick={onOpenAI} className="sw-btn-secondary px-4 py-2.5 text-sm">
                   <Sparkles className="w-4 h-4" /> AI Parse
                 </button>
