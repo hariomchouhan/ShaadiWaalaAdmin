@@ -134,34 +134,51 @@ export function printBiodata(profile) {
       font-family: 'DM Sans', system-ui, sans-serif;
       color: ${text};
       background: #fff;
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 28px 36px 32px;
+      margin: 0;
+      padding: 0;
       line-height: 1.5;
       position: relative;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
 
-    .watermark {
+    .watermark-screen {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-32deg);
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(56px, 14vw, 88px);
-      font-weight: 700;
-      color: ${gold};
-      opacity: 0.07;
-      white-space: nowrap;
-      pointer-events: none;
+      inset: 0;
       z-index: 0;
-      user-select: none;
-      letter-spacing: 0.04em;
+      pointer-events: none;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .watermark-screen img {
+      width: min(62vw, 340px);
+      height: auto;
+      transform: rotate(-28deg);
+      opacity: 0.13;
+      filter: grayscale(20%) sepia(30%);
     }
     .page-content {
       position: relative;
       z-index: 1;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 36px 32px;
+      background: transparent;
+      border: 1px solid rgba(197, 160, 89, 0.25);
+      border-radius: 14px;
+    }
+
+    .top-brand {
+      text-align: center;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid ${gold};
+    }
+    .compact-brand-logo {
+      height: 46px;
+      margin-bottom: 6px;
     }
 
     .header {
@@ -205,9 +222,9 @@ export function printBiodata(profile) {
       display: flex;
       gap: 28px;
       align-items: flex-start;
-      margin-bottom: 28px;
-      padding: 20px;
-      background: linear-gradient(135deg, ${surface} 0%, #fff 100%);
+      margin-bottom: 22px;
+      padding: 18px;
+      background: rgba(250, 247, 242, 0.55);
       border: 1px solid rgba(197, 160, 89, 0.2);
       border-radius: 12px;
     }
@@ -261,12 +278,12 @@ export function printBiodata(profile) {
       letter-spacing: 0.04em;
       padding: 4px 10px;
       border-radius: 20px;
-      background: rgba(197, 160, 89, 0.12);
+      background: rgba(197, 160, 89, 0.1);
       color: ${brown};
       border: 1px solid rgba(197, 160, 89, 0.25);
     }
     .chip.gold {
-      background: ${gold};
+      background: rgba(197, 160, 89, 0.88);
       color: #fff;
       border-color: ${gold};
     }
@@ -276,13 +293,13 @@ export function printBiodata(profile) {
       color: ${textMuted};
       padding: 12px 14px;
       margin-bottom: 12px;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.55);
       border-left: 3px solid ${gold};
       border-radius: 0 8px 8px 0;
       line-height: 1.55;
     }
     .pref-card {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.55);
       border: 1px solid rgba(197, 160, 89, 0.2);
       border-radius: 8px;
       padding: 12px 14px;
@@ -324,7 +341,7 @@ export function printBiodata(profile) {
     }
     .field {
       padding: 10px 12px;
-      background: ${surface};
+      background: rgba(250, 247, 242, 0.5);
       border-radius: 8px;
       border: 1px solid rgba(197, 160, 89, 0.1);
     }
@@ -378,14 +395,22 @@ export function printBiodata(profile) {
     .footer strong { color: ${goldDark}; }
 
     @media print {
-      body { padding: 12mm 14mm; }
+      body { padding: 0; background: #fff; }
       @page { margin: 10mm; size: A4; }
-      .watermark {
-        opacity: 0.08;
+      .watermark-screen img {
+        opacity: 0.16;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
-      .hero, .field, .chip, .section-bar, .photo-wrap, .gallery-item {
+      .page-content {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+      }
+      .hero, .field, .chip, .section-bar, .photo-wrap, .gallery-item, .quote-box, .pref-card {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -393,13 +418,14 @@ export function printBiodata(profile) {
   </style>
 </head>
 <body>
-  <div class="watermark" aria-hidden="true">${esc(BRAND.name)}</div>
+  <div class="watermark-screen" aria-hidden="true">
+    <img src="${logoUrl}" alt="" />
+  </div>
   <div class="page-content">
-  <header class="header">
-    <img src="${logoUrl}" alt="${esc(BRAND.name)}" class="brand-logo" />
+  <div class="top-brand">
+    <img src="${logoUrl}" alt="${esc(BRAND.name)}" class="brand-logo compact-brand-logo" />
     <div class="brand-tagline">Elite &amp; NRI Matrimony</div>
-    <div class="brand-domain">${esc(BRAND.domain)}</div>
-  </header>
+  </div>
 
   <div class="hero">
     ${p.avatar
