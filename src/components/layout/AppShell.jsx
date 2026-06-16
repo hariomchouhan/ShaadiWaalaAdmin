@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
-  LayoutGrid, FilePenLine, FileSearch, FileText, Sparkles, Plus,
-  UploadCloud, Download, LogOut, Menu, X, Loader2,
+  LayoutGrid, FilePenLine, /* FileSearch, */ FileText, Sparkles, Plus,
+  /* UploadCloud, Download, */ LogOut, Menu, X, /* Loader2, */
 } from 'lucide-react';
 import { BRAND } from '../../config/brand';
 import BrandLogo from '../common/BrandLogo';
@@ -9,7 +9,7 @@ import BrandLogo from '../common/BrandLogo';
 const NAV = [
   { id: 'dashboard', icon: LayoutGrid, label: 'Profiles' },
   { id: 'bulk-edit', icon: FilePenLine, label: 'Bulk Edit' },
-  { id: 'matcher', icon: FileSearch, label: 'Duplicates' },
+  // { id: 'matcher', icon: FileSearch, label: 'Duplicates' },
   { id: 'reports', icon: FileText, label: 'Reports' },
 ];
 
@@ -68,7 +68,7 @@ export default function AppShell({
         <button onClick={() => { onAdd(); closeMobile(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:text-brand-gold hover:bg-white/5 transition-colors">
           <Plus className="w-5 h-5" /> New Profile
         </button>
-        <div className="relative">
+        {/* <div className="relative">
           <input type="file" accept=".csv" ref={fileInputRef} onChange={onFileSelect} className="absolute inset-0 opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed" disabled={isImporting || isExporting} />
           <button disabled={isImporting || isExporting} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:text-brand-gold hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             {isImporting ? <Loader2 className="w-5 h-5 animate-spin shrink-0" /> : <UploadCloud className="w-5 h-5 shrink-0" />}
@@ -82,7 +82,7 @@ export default function AppShell({
         >
           {isExporting ? <Loader2 className="w-5 h-5 animate-spin shrink-0" /> : <Download className="w-5 h-5 shrink-0" />}
           {isExporting ? 'Exporting...' : 'Export CSV'}
-        </button>
+        </button> */}
       </div>
 
       <div className="px-3 py-4 border-t border-white/10">
