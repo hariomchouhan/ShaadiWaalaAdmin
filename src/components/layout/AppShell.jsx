@@ -97,13 +97,13 @@ export default function AppShell({
   return (
     <div className="min-h-screen bg-brand-surface flex">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 sidebar-gradient fixed inset-y-0 left-0 z-40">
+      <aside className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 sidebar-gradient fixed inset-y-0 left-0 z-40 no-print">
         <SidebarContent />
       </aside>
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
+        <div className="lg:hidden fixed inset-0 z-50 no-print">
           <div className="absolute inset-0 bg-brand-brown/70 backdrop-blur-sm" onClick={closeMobile} />
           <aside className="absolute inset-y-0 left-0 w-[min(100%,280px)] sidebar-gradient shadow-2xl">
             <button onClick={closeMobile} className="absolute top-4 right-4 p-2 text-white/60 hover:text-white z-10">
@@ -115,9 +115,9 @@ export default function AppShell({
       )}
 
       {/* Main */}
-      <div className="flex-1 lg:ml-64 xl:ml-72 flex flex-col min-h-screen min-w-0">
+      <div className="flex-1 lg:ml-64 xl:ml-72 print:ml-0 flex flex-col min-h-screen min-w-0">
         {/* Mobile top bar */}
-        <header className="lg:hidden glass-nav sticky top-0 z-30 px-4 h-14 flex items-center justify-between shrink-0">
+        <header className="lg:hidden glass-nav sticky top-0 z-30 px-4 h-14 flex items-center justify-between shrink-0 no-print">
           <button onClick={() => setMobileOpen(true)} className="p-2 -ml-2 text-brand-brown hover:text-brand-gold rounded-lg">
             <Menu className="w-6 h-6" />
           </button>
@@ -129,7 +129,7 @@ export default function AppShell({
 
         {/* Desktop top strip for dashboard */}
         {activeView === 'dashboard' && (
-          <div className="hidden lg:block hero-gradient border-b border-brand-gold/10 px-6 xl:px-8 py-6 shrink-0">
+          <div className="hidden lg:block hero-gradient border-b border-brand-gold/10 px-6 xl:px-8 py-6 shrink-0 no-print">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold mb-1">Welcome back</p>
@@ -152,7 +152,7 @@ export default function AppShell({
           </div>
         )}
 
-        <main className="flex-1 px-4 sm:px-6 xl:px-8 py-5 sm:py-6 lg:py-8 overflow-x-hidden">
+        <main className="flex-1 px-4 sm:px-6 xl:px-8 py-5 sm:py-6 lg:py-8 print:p-0 overflow-x-hidden">
           {children}
         </main>
       </div>

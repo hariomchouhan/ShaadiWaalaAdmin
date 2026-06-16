@@ -4,6 +4,7 @@ import { formatDate } from '../../utils/dateUtils';
 import { downloadCSV } from '../../utils/csvUtils';
 import { BRAND } from '../../config/brand';
 import PageHeader from '../layout/PageHeader';
+import logoUrl from '../../assets/logo.png';
 import ReportFilterDrawer from './ReportFilterDrawer';
 import {
   DEFAULT_REPORT_FILTERS,
@@ -30,6 +31,10 @@ export default function ReportsView({ profiles }) {
   const handleApply = () => {
     setAppliedFilters({ ...draftFilters });
     setDrawerOpen(false);
+  };
+
+  const handleClear = () => {
+    setDraftFilters({ ...DEFAULT_REPORT_FILTERS });
   };
 
   const handlePrintTable = () => {
@@ -99,9 +104,29 @@ export default function ReportsView({ profiles }) {
   const hasResults = appliedFilters && Object.keys(groupedReports).length > 0;
 
   return (
-    <div className="print-bg-white">
+    <div className="print-bg-white relative">
+      <div className="print-watermark hidden print:block" aria-hidden="true">ShaadiWaala</div>
       <style>{`
         @media print {
+          .print-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-32deg);
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 72px;
+            font-weight: 700;
+            color: #c5a059;
+            opacity: 0.08;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            letter-spacing: 0.04em;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .print-container { position: relative; z-index: 1; }
           @page { size: A4 ${printLayout}; margin: 10mm; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
           .no-print { display: none !important; }
@@ -124,7 +149,17 @@ export default function ReportsView({ profiles }) {
               word-break: break-word !important;
               overflow: hidden !important;
           }
-          th { background-color: #e5e7eb !important; font-weight: bold; color: #000 !important; text-transform: uppercase; }
+          th { background-color: #f3ede4 !important; font-weight: bold; color: #4a3728 !important; text-transform: uppercase; border-color: #c5a059 !important; }
+          td { border-color: #d4b87a !important; }
+          .print-report-header {
+              display: block !important;
+              text-align: center;
+              padding-bottom: 12px;
+              margin-bottom: 12px;
+              border-bottom: 2px solid #c5a059;
+          }
+          .print-report-header img { height: 44px; width: auto; margin: 0 auto 6px; }
+          .print-report-meta { font-size: 9pt; color: #6b5d50; }
 
           th:nth-child(1) { width: 4%; text-align: center; }
           th:nth-child(2) { width: 18%; }
@@ -155,6 +190,7 @@ export default function ReportsView({ profiles }) {
         setDraft={setDraftFilters}
         onApply={handleApply}
         onClose={() => setDrawerOpen(false)}
+        onClear={handleClear}
       />
 
       <div className="max-w-6xl mx-auto print-container">
@@ -200,6 +236,12 @@ export default function ReportsView({ profiles }) {
         )}
 
         <div className="overflow-x-auto sw-card p-0 print-table-wrapper">
+          <div className="hidden print:block print-report-header">
+            <img src={logoUrl} alt={BRAND.name} />
+            <p className="print-report-meta">
+              {appliedFilters ? getReportFilterSummary(appliedFilters) : 'Report'} · {filteredReport.length} records · {BRAND.domain}
+            </p>
+          </div>
           <table className="w-full text-sm text-left min-w-[720px]">
             <thead className="bg-brand-brown-deep text-xs uppercase font-semibold text-brand-brown border-b border-brand-gold/15">
               <tr>
@@ -282,7 +324,7 @@ export default function ReportsView({ profiles }) {
                     ) : (
                       <>
                         <p className="font-display text-lg text-brand-text/80 mb-1">No records found</p>
-                        <p className="text-sm mb-4">Try different year range or list type</p>
+                        <p className="text-sm mb-4">Try different filters or year range</p>
                         <button type="button" onClick={openDrawer} className="sw-btn-secondary px-5 py-2.5 text-sm">
                           Edit Filters
                         </button>

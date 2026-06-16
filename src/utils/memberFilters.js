@@ -27,6 +27,8 @@ export const DEFAULT_MEMBER_FILTERS = {
   education: [],
   occupation: [],
   religion: '',
+  residenceType: '',
+  ownResidenceKind: '',
 };
 
 function includesText(value, term) {
@@ -123,6 +125,9 @@ export function applyMemberFilters(profiles, filters) {
       if (!occMatch) return false;
     }
 
+    if (filters.residenceType && p.residenceType !== filters.residenceType) return false;
+    if (filters.ownResidenceKind && p.ownResidenceKind !== filters.ownResidenceKind) return false;
+
     return true;
   });
 }
@@ -148,8 +153,19 @@ export function hasActiveMemberFilters(filters) {
     filters.eating?.length ||
     filters.plans?.length ||
     filters.education?.length ||
-    filters.occupation?.length
+    filters.occupation?.length ||
+    filters.residenceType ||
+    filters.ownResidenceKind
   );
+}
+
+export function pickMemberFilters(filters) {
+  if (!filters) return { ...DEFAULT_MEMBER_FILTERS };
+  const picked = { ...DEFAULT_MEMBER_FILTERS };
+  for (const key of Object.keys(DEFAULT_MEMBER_FILTERS)) {
+    if (filters[key] !== undefined) picked[key] = filters[key];
+  }
+  return picked;
 }
 
 export function getMemberFilterSummary(filters) {
@@ -162,6 +178,8 @@ export function getMemberFilterSummary(filters) {
   if (filters.nri) parts.push(filters.nri === 'Yes' ? 'NRI' : 'Indian');
   if (filters.minAge || filters.maxAge) parts.push(`Age ${filters.minAge || '?'}-${filters.maxAge || '?'}`);
   if (filters.minWeight || filters.maxWeight) parts.push(`Weight ${filters.minWeight || '?'}-${filters.maxWeight || '?'}`);
+  if (filters.residenceType) parts.push(filters.residenceType);
+  if (filters.ownResidenceKind) parts.push(filters.ownResidenceKind);
   const multiCount =
     (filters.maritalStatus?.length || 0) +
     (filters.complexion?.length || 0) +

@@ -1,4 +1,13 @@
+import {
+  DEFAULT_MEMBER_FILTERS,
+  applyMemberFilters,
+  getMemberFilterSummary,
+  hasActiveMemberFilters,
+  pickMemberFilters,
+} from './memberFilters';
+
 export const DEFAULT_REPORT_FILTERS = {
+  ...DEFAULT_MEMBER_FILTERS,
   startYear: '',
   endYear: '',
   exclusiveRange: true,
@@ -20,10 +29,14 @@ export function buildReportData(profiles, filters) {
     return { filteredReport: [], groupedReports: {} };
   }
 
+  const memberFilters = pickMemberFilters(filters);
+  memberFilters.nri = '';
+  let filteredReport = applyMemberFilters(profiles, memberFilters);
+
   const s = parseInt(startYear, 10);
   const e = parseInt(endYear, 10);
 
-  let filteredReport = profiles.filter((p) => {
+  filteredReport = filteredReport.filter((p) => {
     if (nriFilter === 'Yes' && p.nri !== 'Yes') return false;
     if (nriFilter === 'No' && p.nri === 'Yes') return false;
     if (isMasterList) return true;
@@ -66,14 +79,23 @@ export function buildReportData(profiles, filters) {
 }
 
 export function getReportFilterSummary(filters) {
-  const parts = [];
-  parts.push(filters.nriFilter === 'Yes' ? 'NRI Only' : 'Indian');
+  const memberSummary = getMemberFilterSummary(pickMemberFilters(filters));
+  const reportParts = [];
+  reportParts.push(filters.nriFilter === 'Yes' ? 'NRI Only' : 'Indian');
   if (filters.isMasterList) {
-    parts.push('Master List');
-    if (filters.splitGender) parts.push('Boys/Girls split');
+    reportParts.push('Master List');
+    if (filters.splitGender) reportParts.push('Boys/Girls split');
   } else if (filters.startYear && filters.endYear) {
-    parts.push(`${filters.startYear}–${filters.endYear}`);
+    reportParts.push(`${filters.startYear}–${filters.endYear}`);
   }
-  parts.push(filters.printLayout === 'portrait' ? 'Portrait' : 'Landscape');
-  return parts.join(' · ');
+  reportParts.push(filters.printLayout === 'portrait' ? 'Portrait' : 'Landscape');
+
+  const combined = [memberSummary, reportParts.join(' · ')].filter(Boolean);
+  return combined.join(' · ');
+}
+
+export function hasActiveReportMemberFilters(filters) {
+  const memberFilters = pickMemberFilters(filters);
+  memberFilters.nri = '';
+  return hasActiveMemberFilters(memberFilters);
 }
