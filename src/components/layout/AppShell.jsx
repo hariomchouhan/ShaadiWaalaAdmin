@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  LayoutGrid, FilePenLine, /* FileSearch, */ FileText, Sparkles, Plus,
+  LayoutGrid, FilePenLine, /* FileSearch, */ FileText, MessageSquare, Sparkles, Plus,
   /* UploadCloud, Download, */ LogOut, Menu, X, /* Loader2, */
 } from 'lucide-react';
 import { BRAND } from '../../config/brand';
@@ -11,6 +11,7 @@ const NAV = [
   { id: 'bulk-edit', icon: FilePenLine, label: 'Bulk Edit' },
   // { id: 'matcher', icon: FileSearch, label: 'Duplicates' },
   { id: 'reports', icon: FileText, label: 'Reports' },
+  { id: 'queries', icon: MessageSquare, label: 'Queries' },
 ];
 
 export default function AppShell({

@@ -17,6 +17,7 @@ import ImportConfirmModal from './components/modals/ImportConfirmModal';
 import BulkEditView from './components/views/BulkEditView';
 import DuplicateCheckerView from './components/views/DuplicateCheckerView';
 import ReportsView from './components/views/ReportsView';
+import QueriesView from './components/views/QueriesView';
 
 import { useAuth } from './hooks/useAuth';
 import { useNotification } from './hooks/useNotification';
@@ -521,6 +522,9 @@ export default function App() {
       {activeView === 'bulk-edit' && <BulkEditView profiles={profiles} loading={loading} />}
       {activeView === 'matcher' && <DuplicateCheckerView profiles={profiles} loading={loading} />}
       {activeView === 'reports' && <ReportsView profiles={profiles} />}
+      {activeView === 'queries' && (
+        <QueriesView isAuthenticated={isAuthenticated} showNotification={showNotification} />
+      )}
 
       {modals}
     </AppShell>
