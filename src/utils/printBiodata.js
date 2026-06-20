@@ -47,6 +47,7 @@ export function printBiodata(profile) {
     ],
     'Family Background': [
       { label: 'Grandfather', val: p.grandfatherName, fullWidth: true },
+      { label: 'Gotra', val: p.gotra },
       { label: 'Father', val: [p.fatherName, p.fatherOccupation].filter(Boolean).join(' — ') },
       { label: "Father's Mobile", val: p.fatherMobile },
       { label: 'Mother', val: [p.motherName, p.motherOccupation].filter(Boolean).join(' — ') },
