@@ -35,7 +35,7 @@ export default function AppShell({
   const SidebarContent = ({ mobile = false }) => (
     <div className={`flex flex-col h-full ${mobile ? '' : ''}`}>
       <div className="px-5 pt-6 pb-5 border-b border-white/10">
-        <BrandLogo size="lg" className="rounded-md mb-2 bg-brand-gold/40 p-2 shadow-gold/20" />
+        <BrandLogo size="lg" variant="onDark" className="mb-2" />
         <p className="text-[10px] text-brand-gold/80 tracking-[0.15em] uppercase">Admin Panel</p>
       </div>
 

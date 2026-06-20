@@ -61,6 +61,43 @@
     @apply bg-brand-bg rounded-xl border border-brand-gold/10 card-shadow;
   }
 
+  .profile-card {
+    @apply overflow-hidden rounded-xl border border-brand-gold/30 card-shadow transition-all duration-300;
+    background: linear-gradient(165deg, #fffdfb 0%, #faf6ef 55%, #f3ede4 100%);
+  }
+
+  .profile-card:hover {
+    border-color: rgba(197, 160, 89, 0.55);
+    box-shadow: 0 10px 32px rgba(74, 55, 40, 0.12);
+  }
+
+  .profile-card-photo {
+    @apply aspect-[3/4] rounded-lg ring-1 ring-brand-gold/25;
+    background: linear-gradient(145deg, #f3ede4 0%, #faf7f2 45%, rgba(197, 160, 89, 0.12) 100%);
+  }
+
+  .profile-card-photo-overlay {
+    @apply absolute inset-0 pointer-events-none;
+    background: linear-gradient(
+      180deg,
+      rgba(197, 160, 89, 0.08) 0%,
+      transparent 35%,
+      transparent 65%,
+      rgba(74, 55, 40, 0.18) 100%
+    );
+  }
+
+  .profile-card-placeholder {
+    background: linear-gradient(145deg, #ebe3d6 0%, #f3ede4 40%, rgba(197, 160, 89, 0.18) 100%);
+  }
+
+  .brand-logo-on-dark {
+    border-radius: 0.75rem;
+    background: linear-gradient(145deg, #fffdfb 0%, #faf7f2 50%, #f3ede4 100%);
+    border: 1px solid rgba(197, 160, 89, 0.45);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
+  }
+
   .sw-page-title {
     @apply font-display text-2xl sm:text-3xl font-bold text-brand-text tracking-tight;
   }

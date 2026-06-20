@@ -32,7 +32,7 @@ export default function LoginScreen({ onLogin }) {
           <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full border border-brand-gold/20" />
         </div>
         <div className="relative text-center max-w-md">
-          <BrandLogo size="hero" className="mx-auto mb-8 rounded-lg" />
+          <BrandLogo size="hero" variant="onDark" className="mx-auto mb-8" />
           <p className="text-brand-gold/90 text-sm tracking-[0.25em] uppercase mb-6">Elite & NRI Matrimony</p>
           <p className="text-white/60 text-lg leading-relaxed">
             Private admin portal for confidential profile management and matchmaking operations.
@@ -46,7 +46,7 @@ export default function LoginScreen({ onLogin }) {
       <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-brand-surface">
         <div className="w-full max-w-md">
           <div className="lg:hidden text-center mb-8">
-            <BrandLogo size="lg" className="mx-auto mb-3 rounded-md" />
+            <BrandLogo size="lg" variant="onDark" className="mx-auto mb-3" />
             <p className="text-brand-muted text-sm mt-1">{BRAND.tagline}</p>
           </div>
 
