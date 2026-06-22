@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Loader2, RefreshCw, ChevronDown, MessageSquare } from 'lucide-react';
 import PageHeader from '../layout/PageHeader';
 import { useQueries } from '../../hooks/useQueries';
-import { QUERY_STATUSES, QUERY_STATUS_LABELS, QUERIES_PAGE_SIZE, normalizeQueryStatus } from '../../constants/queryStatus';
+import { QUERY_STATUSES, QUERY_STATUS_LABELS, QUERIES_PAGE_SIZE, normalizeQueryStatus, formatLookingFor, getQueryLookingFor } from '../../constants/queryStatus';
 import { formatDateTime } from '../../utils/dateUtils';
 
 export default function QueriesView({ isAuthenticated, showNotification }) {
@@ -101,7 +101,7 @@ export default function QueriesView({ isAuthenticated, showNotification }) {
                     <th className="px-4 py-3 min-w-[160px]">Name</th>
                     <th className="px-4 py-3 min-w-[130px]">Phone</th>
                     <th className="px-4 py-3 min-w-[120px]">City</th>
-                    <th className="px-4 py-3 w-16">Age</th>
+                    <th className="px-4 py-3 min-w-[120px]">Looking For</th>
                     <th className="px-4 py-3 min-w-[140px]">Status</th>
                     <th className="px-4 py-3 min-w-[150px]">Submitted</th>
                     <th className="px-4 py-3 min-w-[150px]">Updated</th>
@@ -123,7 +123,7 @@ export default function QueriesView({ isAuthenticated, showNotification }) {
                           ) : '—'}
                         </td>
                         <td className="px-4 py-3 text-brand-muted">{q.city || '—'}</td>
-                        <td className="px-4 py-3 text-brand-muted">{q.age || '—'}</td>
+                        <td className="px-4 py-3 text-brand-muted">{formatLookingFor(getQueryLookingFor(q))}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <div className="relative">

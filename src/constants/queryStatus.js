@@ -30,6 +30,18 @@ const STATUS_ALIASES = {
   insystem: 'insystem',
 };
 
+export function formatLookingFor(value) {
+  if (!value) return '—';
+  const v = String(value).toLowerCase().trim();
+  if (v === 'female' || v === 'bride') return 'Bride (Female)';
+  if (v === 'male' || v === 'groom') return 'Groom (Male)';
+  return String(value);
+}
+
+export function getQueryLookingFor(query) {
+  return query?.lookingFor ?? query?.looking_for ?? query?.lookingfor ?? null;
+}
+
 export function normalizeQueryStatus(status) {
   if (!status) return 'new';
   const key = String(status).toLowerCase().trim();
