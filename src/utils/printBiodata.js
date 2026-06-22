@@ -71,11 +71,6 @@ export function printBiodata(profile) {
       },
       { label: 'Full Address', val: p.address, fullWidth: true },
     ],
-    'Contact': [
-      { label: 'Mobile', val: p.phone },
-      { label: 'Email', val: p.email },
-      { label: 'Reference', val: p.reference },
-    ],
   };
 
   const renderSection = (title, fields) => {
@@ -447,7 +442,6 @@ export function printBiodata(profile) {
   ${renderSection('Personal Details', sections['Personal Details'])}
   ${renderSection('Education & Career', sections['Education & Career'])}
   ${renderSection('Family Background', sections['Family Background'])}
-  ${renderSection('Contact', sections['Contact'])}
   ${galleryHtml}
 
   <footer class="footer">
