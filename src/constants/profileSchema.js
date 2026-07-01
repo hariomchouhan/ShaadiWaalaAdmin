@@ -41,6 +41,7 @@ export const PROFILE_SCHEMA = [
   { key: 'motherOccDetails', label: "Mother's Occ. Details", type: 'text', width: 'w-full', csvHeader: "Mother's Occ. Details", section: 'Family Background' },
   { key: 'gotra', label: 'Gotra', type: 'text', width: 'w-full', csvHeader: 'Gotra', section: 'Family Background' },
   { key: 'paternalFamilyDetails', label: 'More About Paternal Family', type: 'textarea', width: 'w-full', placeholder: 'Relatives, family background, paternal side details...', csvHeader: 'Paternal Family Details', section: 'Family Background' },
+  { key: 'maternalFamilyDetails', label: 'More About Maternal Family', type: 'textarea', width: 'w-full', placeholder: 'Relatives, family background, maternal side details...', csvHeader: 'Maternal Family Details', section: 'Family Background' },
   { key: 'familyIncome', label: 'Family Annual Income', type: 'text', width: 'w-full', csvHeader: 'Family Annual Income', section: 'Family Background' },
   { key: 'brothers', label: "Brother's Count", type: 'number', width: 'w-1/4', csvHeader: "Brother's Count", section: 'Siblings' },
   { key: 'brotherDetails', label: "Brother's Details", type: 'text', width: 'w-3/4', placeholder: 'Married/Unmarried, Profession', csvHeader: "Brother's Details", section: 'Siblings' },
@@ -62,7 +63,7 @@ export const PROFILE_SCHEMA = [
 
 export const SEARCH_FIELDS = [
   'fullName', 'community', 'phone', 'refId', 'reference',
-  'occupation', 'occupationDetails', 'location', 'notes', 'email', 'paternalFamilyDetails',
+  'occupation', 'occupationDetails', 'location', 'notes', 'email', 'paternalFamilyDetails', 'maternalFamilyDetails',
 ];
 
 export const ITEMS_PER_PAGE = 50;

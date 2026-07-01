@@ -50,6 +50,7 @@ export function printBiodata(profile) {
       { label: 'Grandfather', val: p.grandfatherName, fullWidth: true },
       { label: 'Gotra', val: p.gotra },
       { label: 'More About Paternal Family', val: p.paternalFamilyDetails, fullWidth: true, preformatted: true },
+      { label: 'More About Maternal Family', val: p.maternalFamilyDetails, fullWidth: true, preformatted: true },
       { label: 'Father', val: [p.fatherName, p.fatherOccupation].filter(Boolean).join(' — ') },
       { label: 'Mother', val: [p.motherName, p.motherOccupation].filter(Boolean).join(' — ') },
       {
