@@ -10,7 +10,6 @@ export function parseWeightKg(value) {
 export const DEFAULT_MEMBER_FILTERS = {
   nameOrRefId: '',
   parentName: '',
-  parentPhone: '',
   lookingFor: '',
   state: '',
   nri: '',
@@ -36,10 +35,6 @@ function includesText(value, term) {
   return String(value ?? '').toLowerCase().includes(term.toLowerCase());
 }
 
-function normalizePhone(value) {
-  return String(value ?? '').replace(/\D/g, '');
-}
-
 function heightIndex(h) {
   if (!h) return -1;
   return HEIGHTS.indexOf(h);
@@ -53,8 +48,6 @@ function matchesMultiSelect(selected, value) {
 export function applyMemberFilters(profiles, filters) {
   if (!filters || !hasActiveMemberFilters(filters)) return profiles;
 
-  const phoneTerm = normalizePhone(filters.parentPhone);
-
   return profiles.filter((p) => {
     if (filters.nameOrRefId) {
       const term = filters.nameOrRefId.toLowerCase();
@@ -66,11 +59,6 @@ export function applyMemberFilters(profiles, filters) {
     if (filters.parentName) {
       const term = filters.parentName.toLowerCase();
       if (!includesText(p.fatherName, term) && !includesText(p.motherName, term)) return false;
-    }
-
-    if (phoneTerm) {
-      const phones = [p.fatherMobile, p.motherMobile, p.phone].map(normalizePhone).join('');
-      if (!phones.includes(phoneTerm)) return false;
     }
 
     if (filters.lookingFor && p.gender !== filters.lookingFor) return false;
@@ -137,7 +125,6 @@ export function hasActiveMemberFilters(filters) {
   return Boolean(
     filters.nameOrRefId ||
     filters.parentName ||
-    filters.parentPhone ||
     filters.lookingFor ||
     filters.state ||
     filters.nri ||

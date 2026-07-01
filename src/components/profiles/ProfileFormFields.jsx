@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PROFILE_SCHEMA, isProfileFieldVisible } from '../../constants/profileSchema';
+import BusinessListField from './BusinessListField';
 
 function handleFieldChange(field, value, formData, setFormData) {
   const next = { ...formData, [field.key]: value };
@@ -56,6 +57,17 @@ export default function ProfileFormFields({
             )}
             {isOpen && (
               <div className="px-2 mb-3 w-full">
+                {field.type === 'businesses' ? (
+                  <>
+                    <label className="sw-label">{field.label}</label>
+                    <BusinessListField
+                      businesses={formData.businesses || []}
+                      onChange={(businesses) => setFormData((prev) => ({ ...prev, businesses }))}
+                      disabled={disabled}
+                    />
+                  </>
+                ) : (
+                  <>
                 <label className="sw-label">
                   {field.label}
                   {field.required && <span className="text-red-500 normal-case"> *</span>}
@@ -91,6 +103,8 @@ export default function ProfileFormFields({
                     placeholder={field.placeholder || ''}
                     disabled={disabled}
                   />
+                )}
+                  </>
                 )}
               </div>
             )}

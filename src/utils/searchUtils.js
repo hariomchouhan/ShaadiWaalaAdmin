@@ -2,7 +2,17 @@ const SKIP_KEYS = new Set(['id', 'avatar', 'gallery', 'createdAt', 'updatedAt'])
 
 function flattenValue(value) {
   if (value == null) return '';
-  if (Array.isArray(value)) return value.map(flattenValue).filter(Boolean).join(' ');
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+          return Object.values(item).map(flattenValue).filter(Boolean).join(' ');
+        }
+        return flattenValue(item);
+      })
+      .filter(Boolean)
+      .join(' ');
+  }
   const str = String(value).trim();
   if (!str) return '';
   if (str.startsWith('data:image')) return '';

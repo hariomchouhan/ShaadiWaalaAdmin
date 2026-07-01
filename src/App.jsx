@@ -32,6 +32,7 @@ import {
 import { compressImage } from './utils/imageUtils';
 import { parseCSV, downloadCSV } from './utils/csvUtils';
 import { printBiodata } from './utils/printBiodata';
+import { cleanBusinessesForSave } from './utils/businessUtils';
 import {
   createProfile, updateProfile, deleteProfile, batchImportProfiles,
 } from './services/profileService';
@@ -165,11 +166,12 @@ export default function App() {
     if (!isFirebaseConfigured) return showNotification('Firebase not configured', 'error');
     setIsSavingProfile(true);
     try {
+      const payload = { ...formData, businesses: cleanBusinessesForSave(formData.businesses) };
       if (currentProfile) {
-        await updateProfile(currentProfile.id, formData);
+        await updateProfile(currentProfile.id, payload);
         showNotification('Profile updated successfully!');
       } else {
-        await createProfile(formData);
+        await createProfile(payload);
         showNotification('Profile saved successfully!');
       }
       setIsEditModalOpen(false);
@@ -330,13 +332,16 @@ export default function App() {
   };
 
   const openAddProfile = () => {
-    setFormData({ refId: getNextRefId() });
+    setFormData({ refId: getNextRefId(), businesses: [] });
     setCurrentProfile(null);
     setIsEditModalOpen(true);
   };
 
   const openEditProfile = (profile) => {
-    setFormData({ ...profile });
+    setFormData({
+      ...profile,
+      businesses: Array.isArray(profile.businesses) ? profile.businesses : [],
+    });
     setCurrentProfile(profile);
     setIsEditModalOpen(true);
   };

@@ -31,16 +31,16 @@ export const PROFILE_SCHEMA = [
   { key: 'educationDetails', label: 'Education Details', type: 'text', width: 'w-full', placeholder: 'School/College/Degrees', csvHeader: 'Education Details', section: 'Education & Career' },
   { key: 'occupationDetails', label: 'Occupation Details', type: 'text', width: 'w-2/3', placeholder: 'Designation/Company', csvHeader: 'Occupation Details', section: 'Education & Career' },
   { key: 'annualIncome', label: 'Annual Income', type: 'text', width: 'w-1/3', placeholder: 'e.g. 10 Lakh', csvHeader: 'Annual Income', section: 'Education & Career' },
+  { key: 'businesses', label: 'Businesses', type: 'businesses', width: 'w-full', section: 'Education & Career' },
   { key: 'grandfatherName', label: "Grandfather's Name", type: 'text', width: 'w-full', csvHeader: "Grandfather's Name", section: 'Family Background' },
   { key: 'fatherName', label: "Father's Name", type: 'text', width: 'w-1/3', csvHeader: "Father's Name", section: 'Family Background' },
   { key: 'fatherOccupation', label: "Father's Occ.", type: 'select', options: OCCUPATIONS, width: 'w-1/3', csvHeader: "Father's Occ.", section: 'Family Background' },
-  { key: 'fatherMobile', label: "Father's Mobile", type: 'tel', width: 'w-1/3', csvHeader: "Father's Mobile", section: 'Family Background' },
   { key: 'fatherOccDetails', label: "Father's Occ. Details", type: 'text', width: 'w-full', csvHeader: "Father's Occ. Details", section: 'Family Background' },
   { key: 'motherName', label: "Mother's Name", type: 'text', width: 'w-1/3', csvHeader: "Mother's Name", section: 'Family Background' },
   { key: 'motherOccupation', label: "Mother's Occ.", type: 'select', options: OCCUPATIONS, width: 'w-1/3', csvHeader: "Mother's Occ.", section: 'Family Background' },
-  { key: 'motherMobile', label: "Mother's Mobile", type: 'tel', width: 'w-1/3', csvHeader: "Mother's Mobile", section: 'Family Background' },
   { key: 'motherOccDetails', label: "Mother's Occ. Details", type: 'text', width: 'w-full', csvHeader: "Mother's Occ. Details", section: 'Family Background' },
   { key: 'gotra', label: 'Gotra', type: 'text', width: 'w-full', csvHeader: 'Gotra', section: 'Family Background' },
+  { key: 'paternalFamilyDetails', label: 'More About Paternal Family', type: 'textarea', width: 'w-full', placeholder: 'Relatives, family background, paternal side details...', csvHeader: 'Paternal Family Details', section: 'Family Background' },
   { key: 'familyIncome', label: 'Family Annual Income', type: 'text', width: 'w-full', csvHeader: 'Family Annual Income', section: 'Family Background' },
   { key: 'brothers', label: "Brother's Count", type: 'number', width: 'w-1/4', csvHeader: "Brother's Count", section: 'Siblings' },
   { key: 'brotherDetails', label: "Brother's Details", type: 'text', width: 'w-3/4', placeholder: 'Married/Unmarried, Profession', csvHeader: "Brother's Details", section: 'Siblings' },
@@ -62,7 +62,7 @@ export const PROFILE_SCHEMA = [
 
 export const SEARCH_FIELDS = [
   'fullName', 'community', 'phone', 'refId', 'reference',
-  'occupation', 'occupationDetails', 'location', 'notes', 'email',
+  'occupation', 'occupationDetails', 'location', 'notes', 'email', 'paternalFamilyDetails',
 ];
 
 export const ITEMS_PER_PAGE = 50;

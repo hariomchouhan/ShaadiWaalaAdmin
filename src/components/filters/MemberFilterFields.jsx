@@ -97,15 +97,6 @@ export default function MemberFilterFields({ draft, onUpdate, hideNri = false })
             placeholder="Parent name"
           />
         </div>
-        <div>
-          <label className="sw-label">Father&apos;s or Mother&apos;s Number</label>
-          <input
-            className="sw-input"
-            value={draft.parentPhone || ''}
-            onChange={(e) => update({ parentPhone: e.target.value })}
-            placeholder="Phone number"
-          />
-        </div>
       </FilterSection>
 
       <FilterSection title="Looking For">

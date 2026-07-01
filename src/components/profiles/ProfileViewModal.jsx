@@ -1,6 +1,7 @@
 import { Printer, X, MapPin, Phone } from 'lucide-react';
 import { PROFILE_SCHEMA, isProfileFieldVisible } from '../../constants/profileSchema';
 import { formatDate, getAge } from '../../utils/dateUtils';
+import { normalizeBusinesses } from '../../utils/businessUtils';
 
 const VIEW_SECTIONS = [
   ...new Set(PROFILE_SCHEMA.filter((f) => f.section !== 'Core').map((f) => f.section)),
@@ -70,9 +71,10 @@ export default function ProfileViewModal({ profile, onClose, onPrint }) {
 
             <div className="lg:col-span-8 space-y-4">
               {VIEW_SECTIONS.map((section) => {
-                const fields = PROFILE_SCHEMA.filter((f) => f.section === section);
+                const fields = PROFILE_SCHEMA.filter((f) => f.section === section && f.type !== 'businesses');
                 const visible = fields.filter((f) => isProfileFieldVisible(f, profile) && profile[f.key]);
-                if (visible.length === 0) return null;
+                const businesses = section === 'Education & Career' ? normalizeBusinesses(profile.businesses) : [];
+                if (visible.length === 0 && businesses.length === 0) return null;
 
                 return (
                   <div key={section} className="sw-card p-4 sm:p-5">
@@ -82,14 +84,31 @@ export default function ProfileViewModal({ profile, onClose, onPrint }) {
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                       {visible.map((f) => (
-                        <div key={f.key}>
+                        <div key={f.key} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
                           <span className="sw-label">{f.label}</span>
-                          <p className="text-sm text-brand-text font-medium break-words">
+                          <p className={`text-sm text-brand-text font-medium break-words ${f.type === 'textarea' ? 'whitespace-pre-wrap' : ''}`}>
                             {f.type === 'date' ? formatDate(profile[f.key]) : profile[f.key]}
                           </p>
                         </div>
                       ))}
                     </div>
+                    {businesses.length > 0 && (
+                      <div className="mt-4 p-4 rounded-lg bg-brand-surface/60 border border-brand-gold/15">
+                        <span className="sw-label text-brand-gold">Businesses</span>
+                        <div className="space-y-4 mt-3">
+                          {businesses.map((b, i) => (
+                            <div key={i} className={i > 0 ? 'pt-4 border-t border-dashed border-brand-gold/20' : ''}>
+                              {b.name && (
+                                <p className="text-sm font-semibold text-brand-brown">{b.name}</p>
+                              )}
+                              {b.description && (
+                                <p className="text-xs text-brand-muted mt-1 whitespace-pre-wrap leading-relaxed">{b.description}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

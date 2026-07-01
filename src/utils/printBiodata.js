@@ -1,6 +1,7 @@
 import { BRAND } from '../config/brand';
 import { THEME } from '../config/theme';
 import { formatDate, getAge } from './dateUtils.js';
+import { normalizeBusinesses } from './businessUtils.js';
 import logoUrl from '../assets/logo.png';
 
 function esc(s) {
@@ -40,23 +41,22 @@ export function printBiodata(profile) {
     ],
     'Education & Career': [
       { label: 'Education', val: p.educationLevel },
-      { label: 'Education Details', val: p.educationDetails, fullWidth: true },
+      { label: 'Education Details', val: p.educationDetails, fullWidth: true, preformatted: true },
       { label: 'Occupation', val: p.occupation },
       { label: 'Annual Income', val: p.annualIncome },
-      { label: 'Job Details', val: p.occupationDetails, fullWidth: true },
+      { label: 'Job Details', val: p.occupationDetails, fullWidth: true, preformatted: true },
     ],
     'Family Background': [
       { label: 'Grandfather', val: p.grandfatherName, fullWidth: true },
       { label: 'Gotra', val: p.gotra },
+      { label: 'More About Paternal Family', val: p.paternalFamilyDetails, fullWidth: true, preformatted: true },
       { label: 'Father', val: [p.fatherName, p.fatherOccupation].filter(Boolean).join(' — ') },
-      { label: "Father's Mobile", val: p.fatherMobile },
       { label: 'Mother', val: [p.motherName, p.motherOccupation].filter(Boolean).join(' — ') },
-      { label: "Mother's Mobile", val: p.motherMobile },
       {
         label: 'Siblings',
         val: (p.brothers || p.sisters) ? `${p.brothers || 0} Brother(s), ${p.sisters || 0} Sister(s)` : null,
       },
-      { label: 'Sibling Details', val: [p.brotherDetails, p.sisterDetails].filter(Boolean).join('; '), fullWidth: true },
+      { label: 'Sibling Details', val: [p.brotherDetails, p.sisterDetails].filter(Boolean).join('; '), fullWidth: true, preformatted: true },
       { label: 'Family Income', val: p.familyIncome },
       {
         label: 'Residence',
@@ -69,13 +69,30 @@ export function printBiodata(profile) {
         ].filter(Boolean).join(', '),
         fullWidth: true,
       },
-      { label: 'Full Address', val: p.address, fullWidth: true },
+      { label: 'Full Address', val: p.address, fullWidth: true, preformatted: true },
     ],
   };
 
-  const renderSection = (title, fields) => {
+  const renderBusinessesBox = (businesses) => {
+    const list = normalizeBusinesses(businesses);
+    if (!list.length) return '';
+    return `
+      <div class="field full-width businesses-box">
+        <span class="label businesses-headline">Businesses</span>
+        <div class="businesses-list">
+          ${list.map((b) => `
+            <div class="business-item">
+              ${b.name ? `<div class="business-title">${esc(b.name)}</div>` : ''}
+              ${b.description ? `<div class="business-desc">${esc(b.description)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  };
+
+  const renderSection = (title, fields, appendGridHtml = '') => {
     const validFields = fields.filter((f) => f.val && f.val !== '0' && f.val !== 'No');
-    if (validFields.length === 0) return '';
+    if (validFields.length === 0 && !appendGridHtml) return '';
     return `
       <div class="section">
         <div class="section-head">
@@ -86,9 +103,10 @@ export function printBiodata(profile) {
           ${validFields.map((f) => `
             <div class="field ${f.fullWidth ? 'full-width' : ''}">
               <span class="label">${esc(f.label)}</span>
-              <span class="value">${esc(f.val)}</span>
+              <span class="value ${f.preformatted ? 'value-pre' : ''}">${esc(f.val)}</span>
             </div>
           `).join('')}
+          ${appendGridHtml}
         </div>
       </div>`;
   };
@@ -293,6 +311,7 @@ export function printBiodata(profile) {
       border-left: 3px solid ${gold};
       border-radius: 0 8px 8px 0;
       line-height: 1.55;
+      white-space: pre-wrap;
     }
     .pref-card {
       background: rgba(255, 255, 255, 0.55);
@@ -356,6 +375,45 @@ export function printBiodata(profile) {
       font-weight: 600;
       color: ${text};
       word-break: break-word;
+    }
+    .value-pre {
+      white-space: pre-wrap;
+      line-height: 1.55;
+      font-weight: 500;
+    }
+
+    .businesses-box {
+      padding-top: 12px;
+    }
+    .businesses-headline {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: ${gold};
+      margin-bottom: 10px;
+    }
+    .businesses-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .business-item + .business-item {
+      padding-top: 12px;
+      border-top: 1px dashed rgba(197, 160, 89, 0.25);
+    }
+    .business-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: ${brown};
+      line-height: 1.4;
+    }
+    .business-desc {
+      font-size: 11px;
+      font-weight: 500;
+      color: ${textMuted};
+      line-height: 1.55;
+      margin-top: 4px;
+      white-space: pre-wrap;
     }
 
     .gallery-section {
@@ -434,13 +492,13 @@ export function printBiodata(profile) {
       ${p.preference ? `
         <div class="pref-card">
           <span class="label">Partner Preference</span>
-          <div class="value" style="font-weight:500;font-size:13px;">${esc(p.preference)}</div>
+          <div class="value" style="font-weight:500;font-size:13px;white-space:pre-wrap;line-height:1.55;">${esc(p.preference)}</div>
         </div>` : ''}
     </div>
   </div>
 
   ${renderSection('Personal Details', sections['Personal Details'])}
-  ${renderSection('Education & Career', sections['Education & Career'])}
+  ${renderSection('Education & Career', sections['Education & Career'], renderBusinessesBox(p.businesses))}
   ${renderSection('Family Background', sections['Family Background'])}
   ${galleryHtml}
 
