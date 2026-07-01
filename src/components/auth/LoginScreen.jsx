@@ -77,7 +77,7 @@ export default function LoginScreen({ onLogin }) {
                   className="sw-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@shaadiwaala.in"
+                  placeholder="Enter your email"
                   disabled={loading}
                 />
               </div>
@@ -91,7 +91,7 @@ export default function LoginScreen({ onLogin }) {
                   className="sw-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   disabled={loading}
                 />
               </div>
