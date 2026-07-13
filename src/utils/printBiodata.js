@@ -1,6 +1,6 @@
 import { BRAND } from '../config/brand';
 import { THEME } from '../config/theme';
-import { formatDate, getAge } from './dateUtils.js';
+import { formatDate, formatHeight, formatTime12h, getAge } from './dateUtils.js';
 import { normalizeBusinesses } from './businessUtils.js';
 import logoUrl from '../assets/logo.png';
 
@@ -22,10 +22,10 @@ export function printBiodata(profile) {
     'Personal Details': [
       { label: 'Date of Birth', val: formatDate(p.dob) },
       { label: 'Age', val: getAge(p.dob) || null },
-      { label: 'Time of Birth', val: p.timeOfBirth },
+      { label: 'Time of Birth', val: formatTime12h(p.timeOfBirth) },
       { label: 'Place of Birth', val: p.placeOfBirth },
       { label: 'Gender', val: p.gender },
-      { label: 'Height', val: p.height },
+      { label: 'Height', val: formatHeight(p.height) },
       { label: 'Weight', val: p.weight },
       { label: 'Complexion', val: p.complexion },
       { label: 'Religion / Caste', val: p.community },

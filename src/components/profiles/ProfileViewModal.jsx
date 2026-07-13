@@ -1,17 +1,27 @@
 import { Printer, X, MapPin, Phone } from 'lucide-react';
 import { PROFILE_SCHEMA, isProfileFieldVisible } from '../../constants/profileSchema';
-import { formatDate, getAge } from '../../utils/dateUtils';
+import { formatDate, formatHeight, formatTime12h, getAge } from '../../utils/dateUtils';
 import { normalizeBusinesses } from '../../utils/businessUtils';
+import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 
 const VIEW_SECTIONS = [
   ...new Set(PROFILE_SCHEMA.filter((f) => f.section !== 'Core').map((f) => f.section)),
 ];
 
+function formatViewValue(field, value) {
+  if (field.type === 'date') return formatDate(value);
+  if (field.key === 'timeOfBirth') return formatTime12h(value);
+  if (field.key === 'height') return formatHeight(value);
+  return value;
+}
+
 export default function ProfileViewModal({ profile, onClose, onPrint }) {
+  useBodyScrollLock(Boolean(profile));
+
   if (!profile) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay">
       <div className="modal-panel sm:max-w-4xl h-[95vh] sm:h-[90vh]" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header bg-brand-brown text-white border-brand-gold/20">
           <div className="min-w-0">
@@ -87,7 +97,7 @@ export default function ProfileViewModal({ profile, onClose, onPrint }) {
                         <div key={f.key} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
                           <span className="sw-label">{f.label}</span>
                           <p className={`text-sm text-brand-text font-medium break-words ${f.type === 'textarea' ? 'whitespace-pre-wrap' : ''}`}>
-                            {f.type === 'date' ? formatDate(profile[f.key]) : profile[f.key]}
+                            {formatViewValue(f, profile[f.key])}
                           </p>
                         </div>
                       ))}

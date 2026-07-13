@@ -1,10 +1,13 @@
 import { useState, useRef } from 'react';
 import { UploadCloud, FileText, X, Loader2, Sparkles } from 'lucide-react';
+import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 
 export default function AIModal({ isOpen, onClose, aiInputText, setAiInputText, onExtract, isProcessing }) {
   const [aiFile, setAiFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
+
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) return null;
 
@@ -27,7 +30,7 @@ export default function AIModal({ isOpen, onClose, aiInputText, setAiInputText, 
   const canExtract = (aiInputText.trim().length > 0 || aiFile) && !isProcessing;
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
+    <div className="modal-overlay">
       <div className="modal-panel sm:max-w-lg" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="flex items-center gap-3">

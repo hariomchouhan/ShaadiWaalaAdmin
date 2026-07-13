@@ -1,6 +1,7 @@
 import { Camera, Plus, X, Loader2 } from 'lucide-react';
 import ProfileFormFields from './ProfileFormFields';
 import ProgressBar from '../common/ProgressBar';
+import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 
 function UploadZoneOverlay({ message, progress }) {
   return (
@@ -33,6 +34,8 @@ export default function ProfileFormModal({
   isUploadingAvatar = false,
   galleryUpload = null,
 }) {
+  useBodyScrollLock(isOpen);
+
   if (!isOpen) return null;
 
   const busy = isSaving || isUploadingAvatar || galleryUpload?.active;
@@ -46,7 +49,7 @@ export default function ProfileFormModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
+    <div className="modal-overlay">
       <div className="modal-panel sm:max-w-3xl" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>

@@ -99,3 +99,12 @@ export function hasActiveReportMemberFilters(filters) {
   memberFilters.nri = '';
   return hasActiveMemberFilters(memberFilters);
 }
+
+/** Notes column: father's occupation (+ details when present). */
+export function getReportNotes(profile) {
+  if (!profile) return '';
+  return [profile.fatherOccupation, profile.fatherOccDetails]
+    .map((v) => String(v ?? '').trim())
+    .filter(Boolean)
+    .join(' — ');
+}

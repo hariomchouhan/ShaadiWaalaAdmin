@@ -46,6 +46,28 @@ export const normalizeTime = (timeStr) => {
 export const formatDate = (s) =>
   s ? new Date(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-') : '';
 
+/** Display 24h "13:13" (or AM/PM input) as "1:13 PM". */
+export const formatTime12h = (timeStr) => {
+  if (!timeStr) return '';
+  const normalized = normalizeTime(String(timeStr)) || String(timeStr).trim();
+  const match = normalized.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return String(timeStr);
+  let hour = parseInt(match[1], 10);
+  const min = match[2];
+  if (Number.isNaN(hour) || hour > 23) return String(timeStr);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  hour %= 12;
+  if (hour === 0) hour = 12;
+  return `${hour}:${min} ${period}`;
+};
+
+/** Display height with inches mark, e.g. 5'04 → 5'04" */
+export const formatHeight = (height) => {
+  if (!height) return '';
+  const s = String(height).trim();
+  return s.endsWith('"') ? s : `${s}"`;
+};
+
 export const formatDateTime = (s) => {
   if (!s) return '—';
   const d = new Date(s);

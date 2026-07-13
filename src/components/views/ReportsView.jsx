@@ -10,6 +10,7 @@ import {
   DEFAULT_REPORT_FILTERS,
   buildReportData,
   getReportFilterSummary,
+  getReportNotes,
 } from '../../utils/reportFilters';
 
 export default function ReportsView({ profiles }) {
@@ -62,6 +63,7 @@ export default function ReportsView({ profiles }) {
           if (p.maritalStatus && p.maritalStatus !== 'Unmarried') {
             displayName += ` - ${p.maritalStatus}`;
           }
+          const notes = getReportNotes(p);
 
           rows.push([
             globalIdx++,
@@ -72,7 +74,7 @@ export default function ReportsView({ profiles }) {
             `"${(p.phone || '').replace(/,/g, ' / ').replace(/"/g, '""')}"`,
             `"${(p.reference || '').replace(/"/g, '""')}"`,
             `"${p.community || ''}"`,
-            `""`,
+            `"${notes.replace(/"/g, '""')}"`,
           ].join(','));
         });
 
@@ -283,7 +285,9 @@ export default function ReportsView({ profiles }) {
                       <td className="px-3 sm:px-4 py-2.5">{p.phone ? p.phone.replace(/,/g, ' / ') : ''}</td>
                       <td className="px-3 sm:px-4 py-2.5 text-xs text-brand-muted">{p.reference}</td>
                       <td className="px-3 sm:px-4 py-2.5 font-semibold text-brand-brown bg-brand-gold/5">{p.community}</td>
-                      <td className="px-3 sm:px-4 py-2.5 bg-brand-surface/30"></td>
+                      <td className="px-3 sm:px-4 py-2.5 bg-brand-surface/30 text-xs text-brand-text whitespace-pre-wrap">
+                        {getReportNotes(p)}
+                      </td>
                     </tr>
                   ))}
 

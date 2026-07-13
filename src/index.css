@@ -150,7 +150,7 @@
   }
 
   .modal-overlay {
-    @apply fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-brand-brown/60 backdrop-blur-sm p-0 sm:p-4;
+    @apply fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-brand-brown/60 backdrop-blur-sm p-0 sm:p-4 overscroll-none;
   }
 
   .modal-panel {
