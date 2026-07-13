@@ -29,6 +29,15 @@ function buildExtractionPrompt(extraContext = '') {
   const contextLine = extraContext ? `\nAdditional context: ${extraContext}` : '';
   return `Act as a Data Entry Expert. Extract matrimonial biodata into a Strict JSON Object.${contextLine}
 
+RULES:
+- Read every label carefully, including Indian/Hindi biodata labels.
+- Grandfather's name may appear as: Grandfather, Grand Father, Grandpa, Dada, Dada Ji, Paternal Grandfather, Nana (only if clearly paternal grandfather), Father's Father.
+- Put grandfather only in "grandfatherName". Do NOT put it in fatherName.
+- Prefer exact text from the document for names and free-text fields.
+- Keep line breaks in long text fields when present.
+- For occupations, match the Occupations list when possible; put extra detail in *OccDetails / occupationDetails.
+- Use empty string or 0 if a value is not found. Never invent values.
+
 LISTS:
 - Religions: [${RELIGIONS.join(', ')}]
 - Marital Status: [${MARITAL_STATUS.join(', ')}]
@@ -48,28 +57,43 @@ TARGET JSON (use empty string or 0 if not found):
   "gender": "Male/Female",
   "community": "Match List",
   "maritalStatus": "Match List",
+  "nri": "No/Yes",
   "height": "Match List (e.g. 5'06)",
   "weight": "Match List (e.g. 65 kg)",
   "complexion": "Match List",
+  "disability": "No/Yes",
   "eating": "Match List",
-  "drinking": "No/Yes",
-  "smoking": "No/Yes",
+  "drinking": "No/Yes/Occasionally",
+  "smoking": "No/Yes/Occasionally",
   "educationLevel": "Match List",
   "educationDetails": "String",
   "occupation": "Match List",
   "occupationDetails": "String",
   "annualIncome": "String",
+  "businesses": [{ "name": "String", "description": "String" }],
+  "grandfatherName": "String",
   "fatherName": "String",
-  "fatherOccupation": "String",
+  "fatherOccupation": "Match List",
+  "fatherOccDetails": "String",
   "motherName": "String",
-  "motherOccupation": "String",
+  "motherOccupation": "Match List",
+  "motherOccDetails": "String",
+  "gotra": "String",
+  "paternalFamilyDetails": "String",
+  "maternalFamilyDetails": "String",
+  "familyIncome": "String",
   "brothers": "Number",
   "brotherDetails": "String",
   "sisters": "Number",
   "sisterDetails": "String",
-  "location": "String",
   "phone": "String",
   "email": "String",
+  "residenceType": "Own/Rented",
+  "location": "City String",
+  "state": "String",
+  "pincode": "String",
+  "address": "Full address String",
+  "aboutCandidate": "String",
   "preference": "String",
   "notes": "String"
 }
@@ -92,8 +116,28 @@ function fileToBase64(file) {
   });
 }
 
+function cleanName(value) {
+  if (value == null) return '';
+  return String(value).replace(/\s+/g, ' ').trim();
+}
+
 function cleanExtractedProfile(rawJson) {
   const cleaned = { ...rawJson };
+
+  // Normalize common alternate keys some models return
+  if (!cleaned.grandfatherName) {
+    cleaned.grandfatherName =
+      cleaned.grandFatherName ||
+      cleaned.grandfather ||
+      cleaned.grandFather ||
+      cleaned.dadaName ||
+      '';
+  }
+  delete cleaned.grandFatherName;
+  delete cleaned.grandfather;
+  delete cleaned.grandFather;
+  delete cleaned.dadaName;
+
   if (cleaned.dob) cleaned.dob = normalizeDate(cleaned.dob);
   if (cleaned.timeOfBirth) cleaned.timeOfBirth = normalizeTime(cleaned.timeOfBirth);
   if (cleaned.community) cleaned.community = fuzzyMatch(cleaned.community, RELIGIONS);
@@ -114,10 +158,28 @@ function cleanExtractedProfile(rawJson) {
   }
   if (cleaned.educationLevel) cleaned.educationLevel = fuzzyMatch(cleaned.educationLevel, EDUCATION_LEVELS);
   if (cleaned.occupation) cleaned.occupation = fuzzyMatch(cleaned.occupation, OCCUPATIONS);
+  if (cleaned.fatherOccupation) cleaned.fatherOccupation = fuzzyMatch(cleaned.fatherOccupation, OCCUPATIONS);
+  if (cleaned.motherOccupation) cleaned.motherOccupation = fuzzyMatch(cleaned.motherOccupation, OCCUPATIONS);
   if (cleaned.complexion) cleaned.complexion = fuzzyMatch(cleaned.complexion, COMPLEXION);
   if (cleaned.eating) cleaned.eating = fuzzyMatch(cleaned.eating, DIET);
   if (cleaned.brothers) cleaned.brothers = parseInt(cleaned.brothers, 10) || 0;
   if (cleaned.sisters) cleaned.sisters = parseInt(cleaned.sisters, 10) || 0;
+
+  cleaned.grandfatherName = cleanName(cleaned.grandfatherName);
+  cleaned.fatherName = cleanName(cleaned.fatherName);
+  cleaned.motherName = cleanName(cleaned.motherName);
+  cleaned.fullName = cleanName(cleaned.fullName);
+  cleaned.gotra = cleanName(cleaned.gotra);
+
+  if (Array.isArray(cleaned.businesses)) {
+    cleaned.businesses = cleaned.businesses
+      .map((b) => ({
+        name: cleanName(b?.name),
+        description: String(b?.description ?? '').trim(),
+      }))
+      .filter((b) => b.name || b.description);
+  }
+
   return cleaned;
 }
 
