@@ -52,7 +52,9 @@ export function printBiodata(profile) {
       { label: 'More About Paternal Family', val: p.paternalFamilyDetails, fullWidth: true, preformatted: true },
       { label: 'More About Maternal Family', val: p.maternalFamilyDetails, fullWidth: true, preformatted: true },
       { label: 'Father', val: [p.fatherName, p.fatherOccupation].filter(Boolean).join(' — ') },
+      { label: 'Father Occupation Details', val: p.fatherOccDetails, fullWidth: true, preformatted: true },
       { label: 'Mother', val: [p.motherName, p.motherOccupation].filter(Boolean).join(' — ') },
+      { label: 'Mother Occupation Details', val: p.motherOccDetails, fullWidth: true, preformatted: true },
       {
         label: 'Siblings',
         val: (p.brothers || p.sisters) ? `${p.brothers || 0} Brother(s), ${p.sisters || 0} Sister(s)` : null,
