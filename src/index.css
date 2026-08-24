@@ -208,6 +208,12 @@
 }
 
 @media print {
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
   .no-print {
     display: none !important;
   }

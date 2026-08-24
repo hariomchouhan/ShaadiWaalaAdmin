@@ -3,6 +3,7 @@ import { FileSpreadsheet, Printer, Loader2, SlidersHorizontal } from 'lucide-rea
 import { formatDate } from '../../utils/dateUtils';
 import { downloadCSV } from '../../utils/csvUtils';
 import { BRAND } from '../../config/brand';
+import { printReport } from '../../utils/printReport';
 import PageHeader from '../layout/PageHeader';
 import logoUrl from '../../assets/logo.png';
 import ReportFilterDrawer from './ReportFilterDrawer';
@@ -39,7 +40,11 @@ export default function ReportsView({ profiles }) {
   };
 
   const handlePrintTable = () => {
-    window.print();
+    if (!appliedFilters || filteredReport.length === 0) return;
+    printReport({
+      groupedReports,
+      appliedFilters,
+    });
   };
 
   const handleExportReport = async () => {
@@ -128,14 +133,19 @@ export default function ReportsView({ profiles }) {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
+          html, body, #root {
+            height: auto !important;
+            overflow: visible !important;
+            background: white !important;
+          }
           .print-container { position: relative; z-index: 1; }
           @page { size: A4 ${printLayout}; margin: 10mm; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
           .no-print { display: none !important; }
 
-          .print-bg-white { padding: 0 !important; background: white !important; }
-          .print-container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-          .print-table-wrapper { border: none !important; box-shadow: none !important; border-radius: 0 !important; overflow: visible !important; }
+          .print-bg-white { padding: 0 !important; background: white !important; overflow: visible !important; height: auto !important; }
+          .print-container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+          .print-table-wrapper { border: none !important; box-shadow: none !important; border-radius: 0 !important; overflow: visible !important; height: auto !important; max-height: none !important; }
 
           table {
               width: 100%;
@@ -143,13 +153,14 @@ export default function ReportsView({ profiles }) {
               font-size: ${printLayout === 'portrait' ? '8.5pt' : '10pt'};
               table-layout: fixed;
           }
+          thead { display: table-header-group; }
+          tr { break-inside: avoid; page-break-inside: avoid; }
           th, td {
               border: 1px solid #000 !important;
               padding: ${printLayout === 'portrait' ? '4px 3px' : '8px 6px'} !important;
               word-wrap: break-word !important;
               overflow-wrap: anywhere !important;
               word-break: break-word !important;
-              overflow: hidden !important;
           }
           th { background-color: #f3ede4 !important; font-weight: bold; color: #4a3728 !important; text-transform: uppercase; border-color: #c5a059 !important; }
           td { border-color: #d4b87a !important; }
@@ -237,7 +248,7 @@ export default function ReportsView({ profiles }) {
           </div>
         )}
 
-        <div className="overflow-x-auto sw-card p-0 print-table-wrapper">
+        <div className="overflow-x-auto print:overflow-visible sw-card p-0 print-table-wrapper">
           <div className="hidden print:block print-report-header">
             <img src={logoUrl} alt={BRAND.name} />
             <p className="print-report-meta">

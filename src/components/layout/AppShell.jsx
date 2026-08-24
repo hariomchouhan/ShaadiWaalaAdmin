@@ -96,7 +96,7 @@ export default function AppShell({
   );
 
   return (
-    <div className="min-h-screen bg-brand-surface flex">
+    <div className="min-h-screen bg-brand-surface flex print:block print:h-auto print:overflow-visible">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 sidebar-gradient fixed inset-y-0 left-0 z-40 no-print">
         <SidebarContent />
@@ -116,7 +116,7 @@ export default function AppShell({
       )}
 
       {/* Main */}
-      <div className="flex-1 lg:ml-64 xl:ml-72 print:ml-0 flex flex-col min-h-screen min-w-0">
+      <div className="flex-1 lg:ml-64 xl:ml-72 print:ml-0 flex flex-col min-h-screen min-w-0 print:block print:h-auto print:overflow-visible">
         {/* Mobile top bar */}
         <header className="lg:hidden glass-nav sticky top-0 z-30 px-4 h-14 flex items-center justify-between shrink-0 no-print">
           <button onClick={() => setMobileOpen(true)} className="p-2 -ml-2 text-brand-brown hover:text-brand-gold rounded-lg">
@@ -153,7 +153,7 @@ export default function AppShell({
           </div>
         )}
 
-        <main className="flex-1 px-4 sm:px-6 xl:px-8 py-5 sm:py-6 lg:py-8 print:p-0 overflow-x-hidden">
+        <main className="flex-1 px-4 sm:px-6 xl:px-8 py-5 sm:py-6 lg:py-8 print:p-0 overflow-x-hidden print:overflow-visible print:h-auto">
           {children}
         </main>
       </div>
